@@ -18,7 +18,7 @@ Roblox Studio is the official IDE for Roblox development.
 - Roblox Studio includes a level editor, a [luau](#luau) script editor with autocomplete,
   a local emulator, an AI assistant, and collaborative features.
 - How to save a Place created in Roblox Studio:
-  - File > Save to Roblox (as) (as the logged-in user)
+  - File > Save to Roblox (as) -- (as the logged-in user)
   - File > Download a Copy -- save to a local file in `.rbxl` or `.rbxlx` format with "Download File"
   - File > Publish to Roblox (as) -- publish a game to Roblox so that others can see it
   - Ribbon > Home > Settings > Game Settings > Permissions: (Friends || Public || Private)
@@ -99,7 +99,7 @@ Luau standard library:
 
 .
 
-- Lune is a [luau](#luau) script runtime for running .lua scripts with luau lua as in Roblox.
+- Lune is a [luau](#luau) script runtime for running `.lua` scripts with luau like Roblox.
 - Lune includes libraries to decode and encode `.rbxl` and `.rbxlx` files.
 - Lune includes libraries to select Roblox objects from `.rbxl` and `.rbxlx` files
   - rbx-dom is a library for interacting with Roblox object instances 
