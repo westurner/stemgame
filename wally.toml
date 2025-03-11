@@ -1,0 +1,31 @@
+[package]
+name = "wturner/stemgame"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[place]
+shared-packages = "game.ReplicatedStorage.Packages"
+
+[dependencies]
+# https://github.com/jsdotlua/react-lua
+React = "jsdotlua/react@17.2.1"
+
+# https://github.com/jsdotlua/otter
+ReactOtter = "jsdotlua/otter@1.2.1"
+#ReactOtter = "Roblox/otter@1.2.1"
+
+# https://github.com/jsdotlua/roact-navigation
+RoactNavigation = "jsdotlua/roact-navigation@0.5.10"
+
+# https://github.com/Roblox/rodux
+#Rodux = "roblox/rodux@3.0.0"
+Rodux = "roblox/rodux@4.0.0-rc.0"
+
+# https://github.com/Roblox/roact-rodux
+RoactRodux = "roblox/roact-rodux@0.5.1"
+
+
+[dev-dependencies]
+# https://github.com/jsdotlua/jest-lua
+JestGlobals = "jsdotlua/jest-globals@3.10.0"
