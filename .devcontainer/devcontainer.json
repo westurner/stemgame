@@ -123,7 +123,8 @@
 				"JohnnyMorganz.luau-lsp",
 				"JohnnyMorganz.stylua",
 				"filiptibell.roblox-ui",
-				"ms-azuretools.vscode-docker"
+				"ms-azuretools.vscode-docker",
+				"ms-vscode.makefile-tools"
 			]
 		}
 	},
