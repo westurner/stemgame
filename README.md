@@ -246,6 +246,26 @@ wally-index is a package index of wally packages for roblox development with lua
 - docs: https://roblox.github.io/roact-alignment/api-reference/react/#reactcreateelement
 - docs: https://react.dev/reference/react
 - docs: https://react.dev/reference/react/createElement#creating-an-element-without-jsx
+- https://www.npmjs.com/package/@jsdotlua/roact-compat
+- https://www.npmjs.com/package/@jsdotlua/react-roblox
+- https://github.com/jsdotlua/react-lua/blob/main/modules/react-roblox/src/client/ReactRoblox.luau
+- https://github.com/jsdotlua/react-lua/blob/main/modules/react-roblox/src/client/ReactRobloxRoot.luau
+- https://github.com/jsdotlua/react-lua/blob/main/docs/api-reference/react-roblox.md#reactrobloxcreateroot
+- https://github.com/jsdotlua/react-lua/blob/main/docs/api-reference/react-roblox.md#reactrobloxact
+- https://github.com/jsdotlua/react-lua/blob/main/docs/api-reference/roact-compat.md
+- https://github.com/jsdotlua/react-lua/blob/main/docs/api-reference/react.md#reactcomponent
+- https://github.com/jsdotlua/react-lua/blob/main/docs/api-reference/react.md#reactcreateelement
+- https://blog.boyned.com/articles/things-i-learned-using-react/
+  - `local e = React.createElement`
+  - `--!strict`
+    - `echo '{ "languageMode": "strict" }' >> .luarc`
+    - `: React.ReactNode?`
+  - `useToggleState()`
+  - `createUniqueKey()`
+  - `props.native`
+  - `React.createContext(obj)` and `React.useContext(ContextObj)` instead of [Rodux](#rodux)
+  - `ContextStack` composes with `providers=[abc.Provider, xyz, Provider]`
+- https://react.dev/learn/passing-data-deeply-with-context
 
 ### rodux
 - src: https://github.com/Roblox/rodux
@@ -278,6 +298,14 @@ wally-index is a package index of wally packages for roblox development with lua
 - docs: https://github.com/Roblox/roact-navigation/blob/master/src/_tests_/createAppContainer.spec.lua
 - docs: https://github.com/Roblox/roact-navigation/blob/master/Storybook/StackNavigator/ResetToSpecificStack.story.lua
 
+### otter and ReactOtter
+- src: https://github.com/jsdotlua/otter#readme
+- src: https://github.com/Roblox/otter#readme
+
+
+### SpawnLocation.AllowTeamChangeOnTouch
+- https://create.roblox.com/docs/reference/engine/classes/SpawnLocation#AllowTeamChangeOnTouch :
+  > This feature is often used to make checkpoints in obstacle courses or similar games.
 
 
 ## Testing tools
