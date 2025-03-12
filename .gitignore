@@ -5,4 +5,13 @@
 /*.rbxlx.lock
 /*.rbxl.lock
 
-*.un~
+# undotree
+.*.un~
+
+# jupyterlite
+lite/tmp/
+_output/
+
+# wally
+Packages/
+DevPackages/
