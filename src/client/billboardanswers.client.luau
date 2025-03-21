@@ -3,6 +3,10 @@
 
 --]]
 
+if 0 then
+    return
+end
+
 -- ## Define data schema
 local function _schema()
 	-- ## JSON-LD schema
@@ -88,7 +92,7 @@ function AdditionProblem.generate()
 		{_id='B', _value= "2"}, -- todo: add noise
 		{_id='C', _value= tostring(num1+num2), correct = correctAnswerText},
 	}
-	return AdditionProblem:new(question, answers, correctAnswerText)
+	return AdditionProblem.new(question, answers, correctAnswerText)
 end
 
 

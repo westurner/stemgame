@@ -8,6 +8,9 @@
 # undotree
 .*.un~
 
+# uv
+.venv/
+
 # jupyterlite
 lite/tmp/
 _output/

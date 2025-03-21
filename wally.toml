@@ -1,6 +1,7 @@
 [package]
-name = "wturner/stemgame"
+name = "westurner/stemgame"
 version = "0.1.0"
+
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
@@ -9,7 +10,9 @@ shared-packages = "game.ReplicatedStorage.Packages"
 
 [dependencies]
 # https://github.com/jsdotlua/react-lua
+# https://github.com/jsdotlua/react-lua/blob/main/modules/react/package.json
 React = "jsdotlua/react@17.2.1"
+ReactRoblox = "jsdotlua/react-roblox@17.2.1"
 
 # https://github.com/jsdotlua/otter
 ReactOtter = "jsdotlua/otter@1.2.1"
@@ -20,12 +23,25 @@ RoactNavigation = "jsdotlua/roact-navigation@0.5.10"
 
 # https://github.com/Roblox/rodux
 #Rodux = "roblox/rodux@3.0.0"
-Rodux = "roblox/rodux@4.0.0-rc.0"
+#Rodux = "roblox/rodux@4.0.0-rc.0"
 
 # https://github.com/Roblox/roact-rodux
-RoactRodux = "roblox/roact-rodux@0.5.1"
+#RoactRodux = "roblox/roact-rodux@0.5.1"
 
 
 [dev-dependencies]
 # https://github.com/jsdotlua/jest-lua
+Jest = "jsdotlua/jest@3.10.0"
 JestGlobals = "jsdotlua/jest-globals@3.10.0"
+
+# https://github.com/jsdotlua/react-lua/tree/main/modules/jest-react/
+# https://github.com/jsdotlua/react-lua/blob/main/modules/jest-react/package.json
+JestReact = "jsdotlua/jest-react@17.2.0"
+
+# https://github.com/jsdotlua/react-lua/tree/main/modules/react-debug-tools
+# https://github.com/jsdotlua/react-lua/blob/blob/modules/react-debug-tools/package.json
+ReactDebugTools = "jsdotlua/react-debug-tools@17.2.1"
+
+# https://github.com/jsdotlua/react-lua/tree/main/modules/react-devtools-extensions
+# https://github.com/jsdotlua/react-lua/blob/main/modules/react-devtools-extensions/package.json
+ReactDevtools = "jsdotlua/react-devtools-extensions@17.2.1"

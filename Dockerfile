@@ -43,6 +43,14 @@ RUN --mount=type=cache,id=cargo-cache-root,target=/root/.cargo/registry,sharing=
     cargo install --git https://github.com/Striker2783/rbxlx-to-rojo rbxlx-to-rojo
     #cargo binstall --gitrbxlx-to-rojo rbxlx-to-rojo
 
+RUN --mount=type=cache,id=cargo-cache-root,target=/root/.cargo/registry,sharing=shared \
+    cargo install run-in-roblox
+
 # TODO: mv cargo install cargo-binstall up, s/cargo install/cargo binstall/g , rm openssl build devs?
 # TODO: USER 1000:1000    # what about --mount=type=cache,target=$HOME/.cargo/registry
 # TODO: WORKDIR /workspace/rblx
+
+EXPOSE 34872/tcp
+
+CMD bash --login
+

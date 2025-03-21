@@ -156,9 +156,11 @@ Aftman is a toolchain manager for Roblox development.
 ### wally
 - src: https://github.com/UpliftGames/wally
 - docs: https://wally.run/
+- docs: https://github.com/UpliftGames/wally#commands
 - download: https://github.com/UpliftGames/wally/releases
 - cargopkg: wally
 - configfile: wally.toml
+- lockfile: wally.lock
 
 Wally is a package manager for Roblox luau projects.
 
@@ -266,6 +268,7 @@ wally-index is a package index of wally packages for roblox development with lua
   - `React.createContext(obj)` and `React.useContext(ContextObj)` instead of [Rodux](#rodux)
   - `ContextStack` composes with `providers=[abc.Provider, xyz, Provider]`
 - https://react.dev/learn/passing-data-deeply-with-context
+- https://alexasterisk.github.io/WallyPackages/import/usage/
 
 ### rodux
 - src: https://github.com/Roblox/rodux
@@ -301,11 +304,16 @@ wally-index is a package index of wally packages for roblox development with lua
 ### otter and ReactOtter
 - src: https://github.com/jsdotlua/otter#readme
 - src: https://github.com/Roblox/otter#readme
-
+- docs: https://github.com/jsdotlua/otter/blob/main/modules/otter/README.md
+- docs: https://github.com/jsdotlua/otter/blob/main/modules/react-otter/README.md
+- https://github.com/jsdotlua/otter/blob/main/modules/react-otter/src/__tests__/useMotor.spec.lua
 
 ### SpawnLocation.AllowTeamChangeOnTouch
 - https://create.roblox.com/docs/reference/engine/classes/SpawnLocation#AllowTeamChangeOnTouch :
   > This feature is often used to make checkpoints in obstacle courses or similar games.
+
+### roblox.TweenService:
+- https://create.roblox.com/docs/reference/engine/classes/TweenService
 
 
 ## Testing tools
