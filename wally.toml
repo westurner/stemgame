@@ -36,7 +36,7 @@ JestGlobals = "jsdotlua/jest-globals@3.10.0"
 
 # https://github.com/jsdotlua/react-lua/tree/main/modules/jest-react/
 # https://github.com/jsdotlua/react-lua/blob/main/modules/jest-react/package.json
-JestReact = "jsdotlua/jest-react@17.2.0"
+# JestReact = "jsdotlua/jest-react@17.2.0"
 
 # https://github.com/jsdotlua/react-lua/tree/main/modules/react-debug-tools
 # https://github.com/jsdotlua/react-lua/blob/blob/modules/react-debug-tools/package.json
