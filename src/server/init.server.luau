@@ -12,12 +12,13 @@ function init()
     local UserInputService = game:GetService("UserInputService")
     --local LogService = game:GetService("LogService")
 
-    local RemoteEvent = Instance.new("RemoteEvent", game.ReplicatedStorage)
+    local RemoteEvent = Instance.new("RemoteEvent")
+    RemoteEvent.Parent = game.ReplicatedStorage
     RemoteEvent.Name = "ServerEvent"
 
     -- Connect to server events
     RemoteEvent.OnServerEvent:Connect(function(player, ...)
-        logServerEvents("OnServerEvent triggered by player.Name=" .. player.Name)
+        logServerEvents("OnServerEvent triggered by player.Name=" .. player.Name .. " ...=" .. tostring(...))
     end)
 
     Players.PlayerAdded:Connect(function(player)
@@ -30,11 +31,11 @@ function init()
 
     Players.PlayerAdded:Connect(function(player)
         player.CharacterAdded:Connect(function(character)
-            logServerEvents("CharacterAdded for player: " .. player.Name)
+            logServerEvents("CharacterAdded for player: " .. player.Name .. " character: " .. character.Name)
         end)
 
         player.CharacterRemoving:Connect(function(character)
-            logServerEvents("CharacterRemoving for player: " .. player.Name)
+            logServerEvents("CharacterRemoving for player: " .. player.Name .. " character: " .. character.Name)
         end)
 
         player.Chatted:Connect(function(message)
@@ -43,23 +44,23 @@ function init()
     end)
 
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        logServerEvents("InputBegan: " .. input.UserInputType.Name)
+        logServerEvents("InputBegan: " .. input.UserInputType.Name .. " gameProcessed=" .. gameProcessed)
     end)
 
     UserInputService.InputEnded:Connect(function(input, gameProcessed)
-        logServerEvents("InputEnded: " .. input.UserInputType.Name)
+        logServerEvents("InputEnded: " .. input.UserInputType.Name  .. " gameProcessed=" .. gameProcessed)
     end)
 
     UserInputService.InputChanged:Connect(function(input, gameProcessed)
-        logServerEvents("InputChanged: " .. input.UserInputType.Name)
+        logServerEvents("InputChanged: " .. input.UserInputType.Name  .. " gameProcessed=" .. gameProcessed)
     end)
 
     print("DEBUG: server: Done.")
 end
 
-function test_init()
-    init()
-end
+-- function test_init()
+--     init()
+-- end
 
 -- test_init()
 
