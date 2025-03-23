@@ -23,6 +23,15 @@ local function _schema()
 	return _context
 end
 
+
+function asserteq(a,b,message)
+	if message == nil then
+		message = string.format("%s != %s", a, b)
+	end
+	assert(a==b, message)
+end
+
+
 local function test_schema()
 	local problem0 = {
 		_id = "#001",
@@ -47,15 +56,15 @@ local function test_schema()
 		}
 	}
 
-	assert(problem0._id == "#001")
-	assert(problem0._type == "addition")
-	assert(problem0.question.string == "4 + 2 = ?")
-	assert(problem0.answers)
-	assert(#problem0.answers == 3)
-	assert(problem0.answers[1]._id == 'A')
-	assert(problem0.answers[2]._value == '2')
-	assert(problem0.answers[3]._id == 'C')
-	assert(problem0.answers[3].correct == true)
+	asserteq(problem0._id, "#001")
+	asserteq(problem0._type, "addition")
+	asserteq(problem0.question.string, "4 + 2 = ?")
+	assert(problem0.answers, "Problem.answers should not be nil")
+	asserteq(#problem0.answers, 3)
+	asserteq(problem0.answers[1]._id, 'A')
+	asserteq(problem0.answers[2]._value, '2')
+	asserteq(problem0.answers[3]._id, 'C')
+	asserteq(problem0.answers[3].correct, true)
 end
 
 
@@ -105,7 +114,7 @@ function AdditionProblem:render(msg)
 	textLabel.Text = tostring(self.question)
 	textLabel.Visible = true
 
-	assert (#self.answers > 0)
+	assert (#self.answers > 0, '#self.answers !> 0')
 
 	if self._rendered then
 		return
@@ -151,8 +160,8 @@ end
 -- ## Test classes and their methods
 function test_AdditionProblem_1()
 	local p = AdditionProblem.generate()
-	assert(p.question ~= "")
-	assert(#p.answers > 0)
+	assert(p.question ~= "", 'p.question should not equal ""')
+	assert(#p.answers > 0, '#p.answers should be greater than 0')
 end
 
 
@@ -248,7 +257,7 @@ local function main()
 							--TODO: HERE
 							print("INFO: state.isTouchingAnswerPad && state.lastAnswerPad=" .. state.lastAnswerPad.Name)
 
-							if (state.lastAnswerPad:GetAttribute("isCorrectAnswer")) then
+							if state.lastAnswerPad:GetAttribute("isCorrectAnswer") then
 								-- TODO: Award points
 								print("CORRECT Answer")
 								state.lastAnswerPad.Color = Color3.fromHex('#00aa00')
