@@ -1,3 +1,4 @@
+--!strict
 print("DEBUG: AreaVolumeCube.client: Starting...")
 
 --[[
@@ -15,7 +16,7 @@ print("DEBUG: AreaVolumeCube.client: Starting...")
   https://github.com/jsdotlua/react-lua/blob/main/docs/api-reference/react.md#reactusecontext
   https://github.com/jsdotlua/react-lua/blob/main/docs/api-reference/react.md#reactuseref
   https://github.com/jsdotlua/react-lua/blob/main/docs/api-reference/react.md#reactevent
-  React.useRef
+  React.useRef, React.createRef()
   React.useContext
   React.useReducer
   React.useState
@@ -43,51 +44,54 @@ print("DEBUG: AreaVolumeCube.client: Starting...")
 --local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local ReactDevtools = require(ReplicatedStorage.DevPackages.ReactDevtools)
+local debugMode = false;
+ReactDevtools.setup(debugMode)
+
 local React = require(ReplicatedStorage.Packages.React)
 local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
 --local e = React.createElement
 
 
-local function SpawnLocationComponent(props: {}, _: {})
-	local spawnLocation = React.createElement("SpawnLocation", {
-			Name="SpawnLocation1",
+local function SpawnLocationComponent(props: {_key: string})
+	return React.createElement("SpawnLocation", {
+			key=props._key,
 			Position=Vector3.new(0, 10, 0),
 			Rotation=Vector3.new(45, 0, 45),
 			Size=Vector3.new(20,1,20),
 			Material=Enum.Material.Ground,
 		}, {
-			React.createElement("Decal", {
+			[1]=React.createElement("Decal", {
+				key="Decal1",
 				Texture = "rbxasset://textures/SpawnLocation.png",
 				Face = Enum.NormalId.Top
 			})
 		})
-	return spawnLocation
 end
 
-local function BigRedBall(props: {
+local function BigRedBallComponent(props)
+--[[: {
+	_key: string,
 	xmin: number,
 	xmax: number,
-}, children)
-	return React.createElement("Part", {
-		Name="BigRedBall",
-		Shape=Enum.PartType.Ball,
-		Size=Vector3.new(4,4,4),
-		Color=Color3.new(0.7, 0, 0),
-		Position=Vector3.new(0,20,0)
-	}, children)
+}]]--,
+	return React.forwardRef(function (props, ref) 
+		React.createElement("Part", {
+			key=props._key,
+			ref=ref,
+			Shape=Enum.PartType.Ball,
+			Size=Vector3.new(4,4,4),
+			Color=Color3.new(0.7, 0, 0),
+			Position=Vector3.new(0,20,0)
+		}, props.children)
+	end)
 end
 
-local function MyTestFrame() 
-	return React.createElement("Frame", {
-		Size = UDim2.new(0,100,0,100),
-	})
-end
+function AreaVolumeCube(props)
 
-
-
-
-function AreaVolumeCube(props: {})
-	local props = table.clone(props)
+	local cubeRef = props.cubeRef
+	--local props = table.clone(_props)
+	--local props = {_key=_props._key}
 	props.dimensions = Vector3.new(3, 4, 10)
 	props.origin = Vector3.new(20, 30, 50)
 	--props.rotation = Vector3.new(1,1,1) -- TODO
@@ -123,8 +127,9 @@ function AreaVolumeCube(props: {})
 				n = n + 1
 				-- Create parts named Block_01,02,03
 				local blockdata = {}
-				blockdata.key = string.format("%02d,%02d,%02d", x,y,z)
-				blocksArray[blockdata.key] = blockdata
+				--blockdata._key = string.format("%02d,%02d,%02d", x,y,z)
+				blockdata._key = n
+				blocksArray[blockdata._key] = blockdata
 
 				blockdata.loc = Vector3.new(x,y,z)
 				blockdata.color1 = Color3.new((x)/dimensions.X, (y)/dimensions.Y, (z)/dimensions.Z) -- TODO: merge with AreaVolumeCube from
@@ -133,14 +138,20 @@ function AreaVolumeCube(props: {})
 				blockdata.Size = UDim2.new(1,0,1,0)
 				--print(string.format("DEBUG: _blocks[%s]=%s", blockindex, tostring(_blocks[blockindex])))
 
+				blockdata.partRef = React.createRef()
+
+				local m = 0
 				local blockSurfaceGuis = {}
 				for _, Face in Enum.NormalId:GetEnumItems() do
+					m += 1
 					-- print("DEBUG: Face.Name=" .. Face.Name)
-					local surfaceGui = React.createElement("SurfaceGui", {
+					blockSurfaceGuis[m] = React.createElement("SurfaceGui", {
+						key = Face.Name,
+						--Name = string.format("SurfaceGui_%s", Face.Name),
 						Face = Face,
-						Name = string.format("SurfaceGui_%s", Face.Name)}, {
+					}, {
 							React.createElement("TextLabel", {
-								key = blockdata.key,
+								key = Face.Name,
 								Text = blockdata.labelText,
 								Size = blockdata.Size,
 								BackgroundTransparency = 1,
@@ -156,11 +167,11 @@ function AreaVolumeCube(props: {})
 								Rotation = ((Face == Enum.NormalId.Bottom or Face == Enum.NormalId.Top) and 180 or 0),
 							}),
 					})
-					table.insert(blockSurfaceGuis, surfaceGui)
 				end
 				local blockPart = React.createElement("Part", {
-					key = blockdata.key,
-					Name = string.format("Block_%02d,%02d,%02d", x, y, z),
+					key = blockdata._key,
+					ref = blockdata.partRef,
+					--Name = string.format("Block_%02d,%02d,%02d", x, y, z),
 					Anchored = true,
 					Shape = Enum.PartType.Block,
 					Size = blockSize,
@@ -172,102 +183,266 @@ function AreaVolumeCube(props: {})
 					Color = Color3.new(
 						0.9, 0.9, 0.9
 					),
-					}, blockSurfaceGuis)
+					CanCollide = false,
+				}, blockSurfaceGuis)
 				blockdata.part = blockPart
-				table.insert(areaVolumeCubeParts, blockPart) -- TODO: this is not DRY
+				--table.insert(areaVolumeCubeParts, blockPart) -- TODO: this is not DRY
+				areaVolumeCubeParts[blockdata._key] = blockPart
 			end
 		end
 	end
+	print("DEBUG: #_blocks=" .. #blocksArray)
 
 	for i, block in ipairs(blocksArray) do
 		for j, otherBlock in ipairs(blocksArray) do
 			if i ~= j then
 				local constraint = Instance.new("RigidConstraint")
-				constraint.Attachment0 = Instance.new("Attachment", block.part)
-				constraint.Attachment1 = Instance.new("Attachment", otherBlock.part)
-				constraint.Parent = block
+				local attach1 = Instance.new("Attachment")
+				local attach2 = Instance.new("Attachment")
+				attach1.Parent = block.partRef.current
+				attach2.Parent = otherBlock.partRef.current
+				constraint.Attachment0 = attach1
+				constraint.Attachment1 = attach2
+				constraint.Parent = block.partRef.current
 			end
 		end
 	end
 
-	local areaVolumeCubePrimaryPart = React.createElement("Model", {
-		Name = "AreaVolumeCube",
+	return React.createElement("Model", {
+		key=props._key,
+		ref=props.ref,
+		--Name = string.format("AreaVolumeCube%d", props._key),
 		--Size = Vector3.new(200, 200, 200), -- TODO: volumetric .size/.extentsSize (?) of cube assembly
 		--CanCollide = false,
 		--Anchored = true,
 	}, areaVolumeCubeParts)
-
-
-	print("DEBUG: #_blocks=" .. #blocksArray)  -- TODO: why is this always zero
-
-	--return blocksArray, props.dimensions
-	--setBlocksArray(blocksArray)
-	return areaVolumeCubePrimaryPart
 end
 
 
-local function AreaVolumeCube_camera_primary(props)
-	local cameraSubject = props.CameraSubject;
+local function CameraOnPartComponent(props: {
+	_key: string,
+	CameraSubject: any?,
+	CameraType: any?,
+	FieldOfView: number?,
+	ref: any?,
+	VRTiltAndRollEnabled: boolean?})
 	return React.createElement("Camera", {
-		Name="Camera_Player",
-		FieldOfView=70,
-		VRTiltAndRollEnabled=true,
-		CameraSubject=cameraSubject,
+		key=props._key,
+		ref=props.ref,
+		--Name=string.format("Camera_%s", props._key),
+		CameraSubject=props.CameraSubject,
+		CameraType=props.CameraType or Enum.CameraType.Follow,
+		FieldOfView=props.FieldOfView or 70,
+		VRTiltAndRollEnabled=props.VRTiltAndRollEnabled,
 	})
 end
 
-local function AreaVolumeCube_camera_cube(props: {CameraSubject: any?})
-	local cameraSubject = props.CameraSubject
-	return React.createElement("Camera", {
-		Name="Camera_Cube",
-		FieldOfView=90,
-		VRTiltAndRollEnabled=true,
-		CameraSubject=cameraSubject
+
+local function FrameComponent(props) 
+	return React.createElement("Frame", {
+		key=props.key,
+		Position=props.Position,
+		Size=props.Size,
+		BorderSizePixel=4,
+		Visible=true,
+		Active=true,
+		BackgroundTransparency=0.5,
+	})
+end
+
+local function TextButtonComponent(props)
+	return React.createElement("TextButton", {
+		key=props._key,
+		--Name=props._key,
+		Text=props.Text,
+		TextSize=32,
+		Position=props.Position,
+		Size=props.Size,
+		BorderSizePixel=4,
+		Visible=true,
+		Active=true,
+		BackgroundTransparency=0.5,
+		[React.Event.Activated]=props[React.Event.Activated] or function(arg1, arg2, arg3)
+			print(string.format("DEBUG: TextButton{key=%s}.Activated=%s =%s =%s",
+				tostring(props._key), tostring(arg1), tostring(arg2), tostring(arg3)))
+		end
 	})
 end
 
 local function init()
-	local spawnLocation = React.createElement(SpawnLocationComponent, {}, {})
-	local bigRedBall = React.createElement(BigRedBall, {}, {})
-	local areaVolumeCube = React.createElement(AreaVolumeCube, {}, {})
-	local camera1 = React.createElement(AreaVolumeCube_camera_primary, {CameraSubject=bigRedBall}, {})
-	--local camera2 = React.createElement(AreaVolumeCube_camera_cube, {CameraSubject=areaVolumeCube}), {}) 
-	-- TODO: ..Cube.partFromCreateElement
+	local spawnLocation = React.createElement(SpawnLocationComponent, {_key=1})
 
 
-	local function AppRoot(props: {children: any?})
+	local cubeRef = React.createRef()
+	local AreaVolumeCube_ForwardRef = React.forwardRef(function (props, ref)
+		return React.createElement(AreaVolumeCube, {_key=2, ref=ref}, props.children)
+	end)
+	local areaVolumeCube = React.createElement(AreaVolumeCube_ForwardRef, {ref=cubeRef})
+
+
+	local ball1Ref = React.createRef()
+	local ball1 = React.createElement(BigRedBallComponent, {_key=3, ref=ball1Ref})
+	local ball2 = React.createElement(BigRedBallComponent, {_key=4})
+	local ball3 = React.createElement(BigRedBallComponent, {_key=5})
+
+
+	local PlayerCameraComponent = React.forwardRef(function (props, ref)
+		return React.createElement(CameraOnPartComponent, {_key=props._key,
+			ref=ref,
+			CameraSubject=props.CameraSubject,
+			--CameraSubject=game:getService("Players").LocalPlayer:WaitForChild("Character"):WaitForChild("Humanoid"),
+			--TODO: LocalPlayer.Character.Humanoid is not yet available
+		}, props.children)
+	end)
+
+
+	-- local CameraComponent2 = React.PureComponent:extend("CameraComponent")
+	-- function CameraComponent2:init()
+	-- 	self:setState({})
+	-- end
+	-- function CameraComponent2:render()
+	-- 	return React.createElement(CameraOnPartComponent, {_key=self.props._key,
+	-- 		ref=self.props._ref,
+	-- 		CameraSubject=self.props.CameraSubject,
+	-- 	})
+	-- end
+
+
+	local CameraComponent = React.forwardRef(function (props, ref)
+		return React.createElement(CameraOnPartComponent, {_key=props._key,
+			ref=ref,
+			CameraSubject=props.CameraSubject,
+		}, props.children)
+	end)
+
+	local camera1_ref = React.createRef()
+	local camera2_ref = React.createRef()
+	local camera3_ref = React.createRef()
+	local camera1 = React.createElement(PlayerCameraComponent, {_key=6, CameraSubject=cubeRef.current, ref=camera1_ref})
+	local camera2 = React.createElement(CameraComponent, {_key=7, CameraSubject=cubeRef.current, ref=camera2_ref})
+	local camera3 = React.createElement(CameraComponent, {_key=8, CameraSubject=ball1Ref.current, ref=camera3_ref})
+
+	local cameraRefs = {{current=workspace.Camera}, camera1_ref, camera2_ref, camera3_ref}
+	local refs = {cubeRef=cubeRef, ball1Ref=ball1Ref, cameras=cameraRefs}
+
+
+	local function AreaVolumeCubeComponent(props: {_key: number})
 		return React.createElement("Model", {
-			Name="AppModel"
+			key=props._key,
+			--Name=string.format("AppRoot%d", props._key)
 		}, {
-			bigRedBall,
-			spawnLocation,
-			bigRedBall,
-			bigRedBall,
-			areaVolumeCube,
-			camera1,
-			--camera2,
+			[1]=spawnLocation,
+			[2]=areaVolumeCube,
+			[3]=ball1,
+			[4]=ball2,
+			[5]=ball3,
+			[6]=camera1,
+			[7]=camera2,
+			[8]=camera3,
 		})
 	end
 
-	--local Players = game:GetService("Players")
-	--local handle = Instance.new("ScreenGui", Players.LocalPlayer.PlayerGui)
-	
-	local handle = Instance.new("Folder")
+
+	local handle = Instance.new("Model")
 	handle.Name = "AppRoot"
 	handle.Parent = workspace
 
+
 	local root = ReactRoblox.createRoot(handle)
-	root:render(React.createElement(AppRoot, {}, {}))
-	print("DEBUG: root:render(AppRoot)")
+	root:render(React.createElement(AreaVolumeCubeComponent, {_key=1}))
+	print("DEBUG: client: root::render(AreaVolumeCubeComponent) done")
+
+
+	local function GuiRootComponent(props: {_key: number, cameras: any})
+		return React.createElement(React.Fragment, {
+			--key=props._key,
+			--Name=string.format("AppRoot%d", props._key)
+		}, {
+			[1]=React.createElement(FrameComponent, {
+				_key=1,
+				Position=UDim2.new(0.8, 0, 0.7, 0),
+				Size = UDim2.new(0, 200, 0, 20),
+			}),
+			[2]=React.createElement(TextButtonComponent, {
+				_key=2,
+				Text="Press me!",
+				Position=UDim2.new(0.8, 0, 0.8, 0),
+				Size=UDim2.new(0, 200, 0, 50),
+
+				[React.Event.Activated]=function(arg1, arg2, arg3)
+					print(string.format("DEBUG: TextButton{key=%s}.Activated=%s =%s =%s",
+						tostring(props._key), tostring(arg1), tostring(arg2), tostring(arg3)))
+
+					print(string.format("DEBUG: props.cameras=%s", tostring(props.cameras)))
+
+					local n_camera = 1;
+					local n_prevCamera = n_camera
+					local nextCameraRef = props.cameras[n_camera]
+					local nextCamera = nextCameraRef and nextCameraRef.current
+					if nextCamera ~= nil then
+						workspace.CurrentCamera = nextCamera
+						task.wait(5)
+						print("INFO: switched cameras. camera=%s" .. tostring(nextCamera))
+						workspace.CurrentCamera = props.cameras[n_prevCamera].current
+					else
+						print(string.format("ERROR: Camera is not true; camera=%s", tostring(nextCamera)))
+					end
+				end
+			})
+		})  -- TODO: shouldn't this raise because [1] and .key=1?
+	end
+
+	local Players = game:GetService("Players")
+	local guiHandle = Instance.new("ScreenGui")
+	local guiRoot = ReactRoblox.createRoot(guiHandle)
+	guiRoot:render(React.createElement(GuiRootComponent, {_key=1, cameras=cameraRefs}))
+	guiHandle.Parent = Players.LocalPlayer.PlayerGui
+	print("DEBUG: client: guiRoot::render(GuiRootComponent) done")
+
+
+	refs.root=root
+	refs.guiRoot=guiRoot
+	return refs
 end
 
-init()
+local exports = init()
+
+
+function main_test()
+	--local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local Packages = ReplicatedStorage.Packages
+	local DevPackages = ReplicatedStorage.DevPackages
+	local JestGlobals = require(DevPackages.JestGlobals)
+	
+	--local Jest = require("@DevPackages/Jest")
+	
+	local runCLIOptions = {
+		verbose = false,
+		ci = false,
+	}
+	
+	local projects = {
+		Packages.Project,
+	}
+	
+	JestGlobals.runCLI(script, runCLIOptions, projects):await()
+	
+	return nil
+end
+
+if nil and game:GetService("RunService").IsStudio then
+	print("INFO: AreaVolumeCube.client: main_test() starting ...")
+	main_test()
+	print("INFO: AreaVolumeCube.client: main_test() complete.")
+else
+	print("INFO: AreaVolumeCube.client: Skipping main_test() because .IsStudio is false")
+end
+
+return exports
 
 
 
-
-
-
+--[[
 
 if 1
 	then return
@@ -381,3 +556,5 @@ init()
 
 
 print("DEBUG: AreaVolumeCube.client: Done...")
+
+--]]

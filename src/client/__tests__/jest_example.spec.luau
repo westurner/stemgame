@@ -31,14 +31,16 @@ it('creates a table with React.createElement', function()
     local React = require(ReplicatedStorage.Packages.React)
     --local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
 
+    local testValue = Vector3.new(1,2,3)
+
     local elem = React.createElement("Part", {
-        thing1="thing1_value"
+        Position=testValue,
     })
 
     print({elem=elem})
     expect(elem.type).toBe("Part")
     expect(elem['$$typeof']).toBe(60103)
-    expect(elem.props.thing1).toBe("thing1_value")
+    expect(elem.props.Position).toBe(testValue)
 end)
 
 it('creates an AppRoot with TODO', function()
