@@ -35,7 +35,7 @@ areaVolumeCube.Parent = workspace
 
 -- local character_spawn_rotation = CFrame.Angles(math.rad(0), math.rad(0), math.rad(0))
 
-local function AreaVolumeCube_connect_onPlayerSpawned(player)
+local function AreaVolumeCube_connect_onPlayerSpawned()
 	game.Players.PlayerAdded:Connect(function(player)
 	    print("DEBUG: AreaVolumeCube.server:PlayerAdded: " .. player.Name)
 	    player.CharacterAdded:Connect(function(character)
@@ -64,7 +64,6 @@ local function AreaVolumeCube_connect_onPlayerSpawned(player)
 end
 
 AreaVolumeCube_connect_onPlayerSpawned()
-
 
 
 print("DEBUG: AreaVolumeCube.server: done.")
