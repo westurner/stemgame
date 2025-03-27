@@ -407,30 +407,45 @@ end
 
 local exports = init()
 
-
+-- Run jest tests
+-- src: https://jsdotlua.github.io/jest-lua/ : MIT
 function main_test()
-	--local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local Packages = ReplicatedStorage.Packages
-	local DevPackages = ReplicatedStorage.DevPackages
-	local JestGlobals = require(DevPackages.JestGlobals)
+
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+	--local runCLI = require("@DevPackages/Jest").runCLI
+	local runCLI = require(ReplicatedStorage.DevPackages.Jest).runCLI
 	
-	--local Jest = require("@DevPackages/Jest")
+	local processServiceExists, ProcessService = pcall(function()
+		return game:GetService("ProcessService")
+	end)
+
+	local StarterPlayer = game:GetService("StarterPlayer")
+	local clientTests = StarterPlayer.StarterPlayerScripts
 	
-	local runCLIOptions = {
+	local status, result = runCLI(clientTests, {
 		verbose = false,
-		ci = false,
-	}
+		ci = false
+	}, { clientTests }):awaitStatus()
 	
-	local projects = {
-		Packages.Project,
-	}
+	if status == "Rejected" then
+		print(result)
+	end
 	
-	JestGlobals.runCLI(script, runCLIOptions, projects):await()
+	if status == "Resolved" and result.results.numFailedTestSuites == 0 and result.results.numFailedTests == 0 then
+		if processServiceExists then
+			ProcessService:ExitAsync(0)
+		end
+	end
+	
+	if processServiceExists then
+		ProcessService:ExitAsync(1)
+	end
 	
 	return nil
 end
 
-if nil and game:GetService("RunService").IsStudio then
+if game:GetService("RunService").IsStudio then
 	print("INFO: AreaVolumeCube.client: main_test() starting ...")
 	main_test()
 	print("INFO: AreaVolumeCube.client: main_test() complete.")
