@@ -268,11 +268,11 @@ local function TextButtonComponent(props)
 end
 
 local function init()
-	local spawnLocation = React.createElement(SpawnLocationComponent, {_key=0})
+	local spawnLocation = React.createElement(SpawnLocationComponent, {_key=0, key=-1})
 
 
 	local cubeRef = React.createRef()
-	local areaVolumeCube = React.createElement(AreaVolumeCube, {_key=1, _ref=cubeRef})
+	local areaVolumeCube = React.createElement(AreaVolumeCube, {_key=1, key=1, _ref=cubeRef})
 	-- local AreaVolumeCube_ForwardRef = React.forwardRef(function (props, ref)
 	-- 	return React.createElement(AreaVolumeCube, {_key=2, ref=ref}, props.children)
 	-- end)
@@ -280,9 +280,9 @@ local function init()
 
 
 	local ball1Ref = React.createRef()
-	local ball1 = React.createElement(BigRedBallComponent, {_key=3, _ref=ball1Ref})
-	local ball2 = React.createElement(BigRedBallComponent, {_key=4})
-	local ball3 = React.createElement(BigRedBallComponent, {_key=5})
+	local ball1 = React.createElement(BigRedBallComponent, {_key=3, key=3,_ref=ball1Ref})
+	local ball2 = React.createElement(BigRedBallComponent, {_key=4, key=4, })
+	local ball3 = React.createElement(BigRedBallComponent, {_key=5, key=5})
 
 
 	local function PlayerCameraComponent (props)
@@ -317,9 +317,9 @@ local function init()
 	local camera1_ref = React.createRef()
 	local camera2_ref = React.createRef()
 	local camera3_ref = React.createRef()
-	local camera1 = React.createElement(PlayerCameraComponent, {_key=6, CameraSubject=cubeRef.current, _ref=camera1_ref})
-	local camera2 = React.createElement(CameraComponent, {_key=7, CameraSubject=cubeRef.current, _ref=camera2_ref})
-	local camera3 = React.createElement(CameraComponent, {_key=8, CameraSubject=ball1Ref.current, _ref=camera3_ref})
+	local camera1 = React.createElement(PlayerCameraComponent, {_key=6, key=6, CameraSubject=cubeRef.current, _ref=camera1_ref})
+	local camera2 = React.createElement(CameraComponent, {_key=7, key=7, CameraSubject=cubeRef.current, _ref=camera2_ref})
+	local camera3 = React.createElement(CameraComponent, {_key=8, key=8, CameraSubject=ball1Ref.current, _ref=camera3_ref})
 
 	local cameraRefs = {{current=workspace.Camera}, camera1_ref, camera2_ref, camera3_ref}
 	local refs = {cubeRef=cubeRef, ball1Ref=ball1Ref, cameras=cameraRefs}
@@ -359,11 +359,13 @@ local function init()
 		}, {
 			[1]=React.createElement(FrameComponent, {
 				_key=1,
+				key=1,
 				Position=UDim2.new(0.8, 0, 0.7, 0),
 				Size = UDim2.new(0, 200, 0, 20),
 			}),
 			[2]=React.createElement(TextButtonComponent, {
 				_key=2,
+				key=2,
 				Text="Press me!",
 				Position=UDim2.new(0.8, 0, 0.8, 0),
 				Size=UDim2.new(0, 200, 0, 50),
