@@ -129,10 +129,17 @@ PODMAN_CMD=bash --login
 PODMAN_OPTS=
 
 PODMAN_VOLUMES_dotenv=-v ${PWD}/.env.devcontainer.sh:/.env:rw 
-PODMAN_VOLUMES=${PODMAN_VOLUMES_dotenv}
+#PODMAN_VOLUMES_workspace=-v ${PWD}/..:/workspace 
+PODMAN_VOLUMES_workspace=-v ${PWD}/../..:/workspace 
+PODMAN_VOLUMES_bashhistory=-v ${VIRTUAL_ENV}/.bash_history:/home/appuser/.bash_history 
+PODMAN_VOLUMES=${PODMAN_VOLUMES_dotenv} ${PODMAN_VOLUMES_workspace} ${PODMAN_VOLUMES_bashhistory} -v /etc/subuids -v /etc/subgids
+
+PODMAN=podman
+
+PODMAN_RM=
 
 podman-run:
-	podman run \
+	${PODMAN} run \
 		${PODMAN_OPTS} \
 		--user="${PODMAN_USER}" \
 		--userns=keep-id \
@@ -149,10 +156,20 @@ podman-run:
 		-v ${XAUTHORITY}:/home/appuser/.Xauthority:ro \
 		-v ${XAUTHORITY}:${XAUTHORITY}:ro \
 		-v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-		--rm \
+		${PODMAN_RM} \
 		-it \
 		${PODMAN_IMAGE} \
 		${PODMAN_CMD}
 
 # --pid host \
 # -v /proc:/proc \
+#
+
+podman-run-rm:
+	$(MAKE) podman-run PODMAN_RM='--rm'
+
+podman-run-preview:
+	$(MAKE) podman-run PODMAN="echo '${PODMAN}'"
+
+vinegar:
+	$(MAKE) podman-run PODMAN_CMD="vinegar run"
