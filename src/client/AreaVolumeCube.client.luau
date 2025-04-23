@@ -75,16 +75,14 @@ local function BigRedBallComponent(props)
 	xmin: number,
 	xmax: number,
 }]]--,
-	return React.forwardRef(function (props, ref) 
-		React.createElement("Part", {
+	return React.createElement("Part", {
 			key=props._key,
-			ref=ref,
+			ref=props._ref,
 			Shape=Enum.PartType.Ball,
 			Size=Vector3.new(4,4,4),
 			Color=Color3.new(0.7, 0, 0),
 			Position=Vector3.new(0,20,0)
 		}, props.children)
-	end)
 end
 
 function AreaVolumeCube(props)
@@ -210,7 +208,7 @@ function AreaVolumeCube(props)
 
 	return React.createElement("Model", {
 		key=props._key,
-		ref=props.ref,
+		ref=props._ref,
 		--Name = string.format("AreaVolumeCube%d", props._key),
 		--Size = Vector3.new(200, 200, 200), -- TODO: volumetric .size/.extentsSize (?) of cube assembly
 		--CanCollide = false,
@@ -240,7 +238,7 @@ end
 
 local function FrameComponent(props) 
 	return React.createElement("Frame", {
-		key=props.key,
+		key=props._key,
 		Position=props.Position,
 		Size=props.Size,
 		BorderSizePixel=4,
@@ -270,30 +268,31 @@ local function TextButtonComponent(props)
 end
 
 local function init()
-	local spawnLocation = React.createElement(SpawnLocationComponent, {_key=1})
+	local spawnLocation = React.createElement(SpawnLocationComponent, {_key=0})
 
 
 	local cubeRef = React.createRef()
-	local AreaVolumeCube_ForwardRef = React.forwardRef(function (props, ref)
-		return React.createElement(AreaVolumeCube, {_key=2, ref=ref}, props.children)
-	end)
-	local areaVolumeCube = React.createElement(AreaVolumeCube_ForwardRef, {ref=cubeRef})
+	local areaVolumeCube = React.createElement(AreaVolumeCube, {_key=1, _ref=cubeRef})
+	-- local AreaVolumeCube_ForwardRef = React.forwardRef(function (props, ref)
+	-- 	return React.createElement(AreaVolumeCube, {_key=2, ref=ref}, props.children)
+	-- end)
+	-- local areaVolumeCube = React.createElement(AreaVolumeCube_ForwardRef, {ref=cubeRef})
 
 
 	local ball1Ref = React.createRef()
-	local ball1 = React.createElement(BigRedBallComponent, {_key=3, ref=ball1Ref})
+	local ball1 = React.createElement(BigRedBallComponent, {_key=3, _ref=ball1Ref})
 	local ball2 = React.createElement(BigRedBallComponent, {_key=4})
 	local ball3 = React.createElement(BigRedBallComponent, {_key=5})
 
 
-	local PlayerCameraComponent = React.forwardRef(function (props, ref)
+	local function PlayerCameraComponent (props)
 		return React.createElement(CameraOnPartComponent, {_key=props._key,
-			ref=ref,
+			_ref=props._ref,
 			CameraSubject=props.CameraSubject,
 			--CameraSubject=game:getService("Players").LocalPlayer:WaitForChild("Character"):WaitForChild("Humanoid"),
 			--TODO: LocalPlayer.Character.Humanoid is not yet available
 		}, props.children)
-	end)
+	end
 
 
 	-- local CameraComponent2 = React.PureComponent:extend("CameraComponent")
@@ -308,19 +307,19 @@ local function init()
 	-- end
 
 
-	local CameraComponent = React.forwardRef(function (props, ref)
+	local function CameraComponent (props)
 		return React.createElement(CameraOnPartComponent, {_key=props._key,
-			ref=ref,
+			_ref=props._ref,
 			CameraSubject=props.CameraSubject,
 		}, props.children)
-	end)
+	end
 
 	local camera1_ref = React.createRef()
 	local camera2_ref = React.createRef()
 	local camera3_ref = React.createRef()
-	local camera1 = React.createElement(PlayerCameraComponent, {_key=6, CameraSubject=cubeRef.current, ref=camera1_ref})
-	local camera2 = React.createElement(CameraComponent, {_key=7, CameraSubject=cubeRef.current, ref=camera2_ref})
-	local camera3 = React.createElement(CameraComponent, {_key=8, CameraSubject=ball1Ref.current, ref=camera3_ref})
+	local camera1 = React.createElement(PlayerCameraComponent, {_key=6, CameraSubject=cubeRef.current, _ref=camera1_ref})
+	local camera2 = React.createElement(CameraComponent, {_key=7, CameraSubject=cubeRef.current, _ref=camera2_ref})
+	local camera3 = React.createElement(CameraComponent, {_key=8, CameraSubject=ball1Ref.current, _ref=camera3_ref})
 
 	local cameraRefs = {{current=workspace.Camera}, camera1_ref, camera2_ref, camera3_ref}
 	local refs = {cubeRef=cubeRef, ball1Ref=ball1Ref, cameras=cameraRefs}
@@ -355,7 +354,7 @@ local function init()
 
 	local function GuiRootComponent(props: {_key: number, cameras: any})
 		return React.createElement(React.Fragment, {
-			--key=props._key,
+			key=props._key,
 			--Name=string.format("AppRoot%d", props._key)
 		}, {
 			[1]=React.createElement(FrameComponent, {
@@ -445,7 +444,7 @@ function main_test()
 	return nil
 end
 
-if game:GetService("RunService").IsStudio then
+if false and game:GetService("RunService").IsStudio then
 	print("INFO: AreaVolumeCube.client: main_test() starting ...")
 	main_test()
 	print("INFO: AreaVolumeCube.client: main_test() complete.")
