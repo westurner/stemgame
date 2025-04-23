@@ -1,6 +1,6 @@
 # stemgame
 
-# Tools for Roblox Development
+# Tools for Roblox Game Development
 
 ## roblox
 - src: https://github.com/roblox
@@ -70,11 +70,11 @@ with a GUI for restarting Roblox Studio, configuring Vinegar, and configuring WI
 - docs: https://luau.org/library
 - LearnXinYMinutes > Lua: https://learnxinyminutes.com/lua/
   
-Luau is an open source fork of Lua 5.1 for Roblox.
+Luau is an open source fork of Lua 5.1 for and by Roblox.
 
-- [lune](#lune) is a script runtime for running `.lua` scripts with luau. 
+- [lune](#lune) is a script runtime for running `.luau` and `.lua` scripts with luau. 
 
-Luau standard library:
+### luau standard library:
 
 - https://luau.org/library#global-functions
 - https://luau.org/library#math-library
@@ -106,7 +106,7 @@ Luau standard library:
 
 
 
-## Package Managers for roblox dev
+## Package Managers for roblox game development
 
 ### TOML
 - wikipedia: https://en.wikipedia.org/wiki/TOML
