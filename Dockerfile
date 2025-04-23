@@ -110,11 +110,11 @@ ENTRYPOINT ["/entrypoint.sh"]
 USER root
 COPY .env.devcontainer.sh /.env
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod o+rx /entrypoint.sh /.env
 
 USER appuser:appuser
-RUN \
-    SETUP_WEBVIEW2=1 bash /.env 
+#RUN \
+#    SETUP_WEBVIEW2=1 bash /.env 
 
 # TODO: this would be compatible with devcontainers 
 #  WORKDIR /workspace/stemgame
