@@ -383,7 +383,7 @@ local function init()
 					if nextCamera ~= nil then
 						workspace.CurrentCamera = nextCamera
 						task.wait(5)
-						print("INFO: switched cameras. camera=%s" .. tostring(nextCamera))
+						print(string.format("INFO: switched cameras. camera=%s", tostring(nextCamera)))
 						workspace.CurrentCamera = props.cameras[n_prevCamera].current
 					else
 						print(string.format("ERROR: Camera is not true; camera=%s", tostring(nextCamera)))
