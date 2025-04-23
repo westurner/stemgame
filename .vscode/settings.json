@@ -1,3 +1,4 @@
 {
-    "makefile.configureOnOpen": false
+    "makefile.configureOnOpen": false,
+    "luau-lsp.sourcemap.rojoPath": "/home/appuser/.cargo/bin/rojo"
 }

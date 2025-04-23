@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+_this=$0
+
+
 ###
 PATH_prepend () {
   # PATH_prepend()     -- prepend a directory ($1) to $PATH
@@ -44,9 +48,15 @@ setup_proton_PATH() {
     PATH_append "${PATH_proton_bin}"
 }
 
-setup_proton_WINEPREFIX() {
-    export WINEPREFIX_PROTON="${WINEPREFIX_PROTON:-"${HOME}/.local/share/vinegar/prefixes/studio/"}"
+setup_WINEPREFIX_proton() {
+    if [ -n "${VINEGAR_USE_FLATPAK}" ]; then
+        export VINEGAR_FLATPAK="${VINEGAR_FLATPAK:-"${HOME}/.var/app/org.vinegarhq.Vinegar"}"
+        export WINEPREFIX_PROTON="${WINEPREFIX_PROTON:-"${VINEGAR_FLATPAK/data/vinegar/prefixes/studio}"}"
+    else
+        export WINEPREFIX_PROTON="${WINEPREFIX_PROTON:-"${HOME}/.local/share/vinegar/prefixes/studio"}"
+    fi
     export WINEPREFIX="${WINEPREFIX:-${WINEPREFIX_PROTON}}"
+    export WINEPREFIX_AppData="${WINEPREFIX}/drive_c/users/steamuser/AppData"
 }
 
 setup_WINE_and_WINEARCH () {
@@ -55,11 +65,12 @@ setup_WINE_and_WINEARCH () {
 }
 
 gpg_verify() {
+    local path=$1
     if [ -z "$(type -p gpg)" ]; then
-        echo "ERROR: gpg is not installed"
+        echo "ERROR: 'gpg' must be on PATH" >&2
+        (set -x; PATH=$PATH)
         return 2
     fi
-    path=$1
     gpg --verify "${path}"
 }
 
@@ -67,7 +78,7 @@ setup_winetricks() {
     release_date="${WINETRICKS_RELEASE:-"20250102"}"
 
     if [ -e "${HOME}/.local/bin/winetricks" ]; then
-        echo "INFO: ~/.local/bin/winetricks already exists. To run setup_winetricks, delete it firat."
+        echo "INFO: ~/.local/bin/winetricks already exists. To run setup_winetricks, delete it first."
         return
     fi
 
@@ -107,7 +118,7 @@ setup_winetricks() {
     # TODO: how to call wine64
 }
 
-setup_nvidia_prime() {
+dia_prime() {
     # source: "prime-run" script
     export __NV_PRIME_RENDER_OFFLOAD=1 __VK_LAYER_NV_optimus=NVIDIA_only __GLX_VENDOR_LIBRARY_NAME=nvidia
     _nvidia_smi=$(test -p "nvidia-smi")
@@ -154,7 +165,7 @@ generate_valid_font_dpi() {
     for n in $(seq 8 41); do
         n=$((12*"${n}"));
         #echo "${n}" "$(printf "0x000000%x\n" "${n}")";
-        echo "${n}" "$(printf "0x%8s" "$(printf "%x" "${integer_str}")" | tr ' ' '0')"
+        echo "${n}" "$(printf "%8s" "$(printf "%x" "${integer_str}")" | tr ' ' '0')"
     done)
 }
 
@@ -205,8 +216,8 @@ cast_int_to_dword() {
 
 cast_hex_to_int() {
     local hexint=$1
-    n="$((16#"$hexint"))"
-    echo "${n}"
+    echo "$((0x$hexint))"
+    return
 }
 
 test_generate_dword_hex_from_int() {
@@ -244,18 +255,27 @@ test_generate_dword_hex_from_int() {
 }
 
 setup_WINEPREFIX_USERREG() {
-    export WINEPREFIX_USERREG="${WINEPREFIX_USERREG:-"${WINEPREFIX_USERREG}"}"
+    test -n "${WINEPREFIX}" || setup_WINEPREFIX_proton
+    export WINEPREFIX_USERREG="${WINEPREFIX_USERREG:-"${WINEPREFIX}/user.reg"}"
 }
 
 get_wine_dpi_logpixels_str() {
-    test -z "${WINEPREFIX_USERREG}" || setup_WINEPREFIX_USERREG
-    grep '^"LogPixels"=dword:' "${WINEPREFIX_USERREG}" 
+    if [ ! -n "${WINEPREFIX_USERREG}" ]; then
+        setup_WINEPREFIX_USERREG
+    fi
+    if [ ! -f "${WINEPREFIX_USERREG}" ]; then
+        echo "ERROR: WINEPREFIX_USERREG=${WINEPREFIX_USERREG} not found" >&2
+        return 2
+    fi
+    output=$(grep '^"LogPixels"=dword:' "${WINEPREFIX_USERREG}" | cut -f 2 -d ':')
+    local retcode=$?
+    echo "${output}"
+    return "${retcode}"
     # "LogPixels"=dword:000000a8
 }
 
-get_wine_dpi_str() {
-    local _dword_str=
-    _dword_str=$(get_wine_dpi_logpixels_str | sed 's/^"LogPixels"=dword:0x//')
+get_wine_dpi_int() {
+    _dword_str=$(get_wine_dpi_logpixels_str | sed 's,.*=dword:\(.*\),\1,')
     _dpi_int=$(cast_hex_to_int "${_dword_str}")
     echo "${_dpi_int}"
     return
@@ -263,9 +283,9 @@ get_wine_dpi_str() {
 
 assert_dpi_is() {
     expected_value=$1
-    output=$(get_wine_dpi_str)
+    output=$(get_wine_dpi_int)
     if [ "${output}" != "${expected_value}" ]; then
-        echo "ERROR: get_wine_dpi_str $1 => $output != ${expected_value}"
+        echo "ERROR: get_wine_dpi_int: $1 => $output != ${expected_value}"
         return 1
     fi
     return 0
@@ -274,12 +294,12 @@ assert_dpi_is() {
 setup_wine_dpi() {
     dpi=$1
     commit=0
-    dwordstr='"LogPixels"=dword:'"0x$(generate_dword_hex_from_int "${dpi}")"
+    dwordstr='"LogPixels"=dword:'"$(generate_dword_hex_from_int "${dpi}")"
     echo "### setup_wine_dpi changes:" >&2
-    (set -x; get_wine_dpi_logpixels_str | sed 's,^"LogPixels"=dword:,'"${dwordstr}"',g')
-    test -z "${WINEPREFIX_USERREG}" || setup_WINEPREFIX_USERREG
+    (set -x; get_wine_dpi_logpixels_str | sed 's,^"LogPixels"=dword:.*$,'"${dwordstr}"',g')
+    test -n "${WINEPREFIX_USERREG}" || setup_WINEPREFIX_USERREG
     if [ -n "${commit}" ]; then
-        sed 's,^"LogPixels"=dword:,'"${dwordstr}"',g' "${WINEPREFIX_USERREG}"
+        sed -i 's,^"LogPixels"=dword:,'"${dwordstr}"',g' "${WINEPREFIX_USERREG}"
         return
     else
         echo "INFO: Not comitting. commit=$commit"
@@ -288,7 +308,17 @@ setup_wine_dpi() {
 }
 
 test_setup_wine_dpi() {
-    existing_dpi=$(get_wine_dpi_str)
+    if [ ! -n "${WINEPREFIX_USERREG}" ]; then
+        setup_WINEPREFIX_USERREG
+    fi
+    if [ ! -f "${WINEPREFIX_USERREG}" ]; then
+        echo "ERROR: WINEPREFIX_USERREG=${WINEPREFIX_USERREG} not found" >&2
+        return 2
+    fi
+
+    existing_dpi=$(get_wine_dpi_int)
+    assert_dpi_is 96  # default
+
     setup_wine_dpi  144
     assert_dpi_is 144
 
@@ -299,7 +329,29 @@ test_setup_wine_dpi() {
     assert_dpi_is "${existing_dpi}"
 }
 
-### DPI setting
+### </end dpi setting> 
+
+export STUDIO_CLIENT_SETTINGS="${WINEPREFIX_AppData}/Local/Roblox/ClientSettings/ClientAppSettings.json"
+#export STUDIO_APP_SETTINGS="${WINEPREFIX_AppData}/Local/Roblox/ClientSettings/StudioAppSettings.json"
+#TODO: PR
+function setup_roblox_studio_for_legacy_jest_tests() {
+    local client_app_settings="${STUDIO_CLIENT_SETTINGS}"
+    if [ -n "${client_app_settings}" ]; then
+        #jq '.FFlagEnableLoadModule=true' "${studio_app_settings}" > ${studio_app_settings}.date.new
+        #sed -i 's/"FFlagEnableLoadModule":false/"FFlagEnableLoadModule":true/g' "${client_app_settings}"
+        echo '{"FFlagEnableLoadModule": true}' > "${client_app_settings}"
+        cat "${client_app_settings}" | grep "FFlagEnableLoadModule"
+        return
+    else
+        echo "ERROR: STUDIO_CLIENT_SETTINGS=$STUDIO_CLIENT_SETTINGS"
+        return 2
+    fi
+}
+
+function setup_roblox_studio_for_legacy_jest_tests__local() {
+    (set -x; export STUDIO_CLIENT_SETTINGS="${HOME}/.var/app/org.vinegarhq.Vinegar/data/vinegar/prefixes/studio/drive_c/users/steamuser/AppData/Local/Roblox/ClientSettings/ClientAppSettings.json";
+    setup_roblox_studio_for_legacy_jest_tests)
+}
 
 setup_WINEPREFIX_SYMLINK() {
     export WINEPREFIX_SYMLINK="${WINEPREFIX_SYMLINK:-"${HOME}/wineprefix64"}" 
@@ -307,6 +359,26 @@ setup_WINEPREFIX_SYMLINK() {
         ln -s "${PATH_proton_bin}" "${WINEPREFIX_SYMLINK}"
     fi
     
+}
+
+
+function setup_vinegar_config() {
+    vinegar_cfg="${HOME}/.config/vinegar/config.toml"
+    cat >> "${vinegar_cfg}" << EOF
+
+# This enables dxvk:
+dxvk=true
+
+# This machine has an iGPU and an NVIDIA dGPU:
+gpu="prime-discrete"
+
+
+# FFlagEnableLoadModule is necessary for jest-lua tests to run
+# until https://github.com/Roblox/jest-roblox/blob/master/CHANGELOG.md#3100-2024-10-02 is merged into jsdotlua/jest-lua IIUC:
+[studio.fflags]
+FFlagEnableLoadModule=true'
+EOF
+
 }
 
 _test_all() {
@@ -318,16 +390,6 @@ _test_all() {
 }
 
 setup_devcontainer_main() {
-    function error_handler {
-        echo "Error occurred on line $(caller)" >&2
-        awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n",NR,(NR==L?">>>":""),$0 }' L=$1 $0 >&2
-    }
-    if (echo "${SHELL}" | grep "bash"); then
-        trap 'error_handler $LINENO' ERR
-    fi
-
-    _test_all
-
     export SETUP_PRIME=${SETUP_PRIME:-"1"}
     export SETUP_WEBVIEW2=${SETUP_WEBVIEW2:-""}
     export SETUP_WINETRICKS=${SETUP_WINETRICKS:-"1"}
@@ -341,7 +403,7 @@ setup_devcontainer_main() {
     fi
 
     setup_proton_PATH
-    setup_proton_WINEPREFIX
+    setup_WINEPREFIX_proton
     setup_WINEPREFIX_SYMLINK
 
     if [ -z "${WINE}" ] || [ -z "${WINEARCH}" ]; then
@@ -358,7 +420,16 @@ setup_devcontainer_main() {
 
 }
 
-_this=$0
+
+function error_handler {
+    echo "Error occurred on line $(caller)" >&2
+    awk 'NR>L-4 && NR<L+4 { printf "%-5d%3s%s\n",NR,(NR==L?">>>":""),$0 }' L=$1 $0 >&2
+}
+if (echo "${SHELL}" | grep "bash"); then
+    trap 'error_handler $LINENO' ERR
+fi
+
+
 if [ "$(id -u)" -eq 0 ] && [ -z "${__ALLOW_RUN_AS_ROOT}" ]; then
     echo "INFO: Not running (source ${_this} && setup_devcontainer_main) as root:"
     (set -x; id -u)
