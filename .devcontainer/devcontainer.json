@@ -6,10 +6,12 @@
 	// condaforge/miniforge3 tags: https://hub.docker.com/r/condaforge/miniforge3/tags
 	"name": "rblxdevcontainer",
 	//"image": "docker.io/condaforge/miniforge3:latest",
+	"image": "localhost/stemgame:latest", // use this if you build the image locally
+	/*
 	"build": {
 		"context": "..",
 		"dockerfile": "../Dockerfile"
-	},
+	},*/
 
 	// 1. Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [34872],
@@ -18,7 +20,32 @@
 	// "mounts": [],
 
 	// 3. Use 'runArgs' to pass arguments to the container. 
-	"runArgs": ["--userns=keep-id", "--security-opt=label=disable"],
+	"runArgs": ["--userns=keep-id", "--security-opt=label=disable",
+		//"--gpus=all",  // optionally remoeve this line to disable GPU support
+		//"--device nvidia.com/gpu=all",
+		"--log-level=debug",
+		// https://github.com/NVIDIA/nvidia-container-toolkit/issues/46#issuecomment-1587350187
+		"--net=host",
+		"--ipc=host",
+		//"--runtime crun", // podman: "unknown flag"
+		"--gpus", "all",
+		"--device","nvidia.com/gpu=all",
+		// "--device","/dev/dri/card0",
+		// "--device","/dev/dri/renderD129",
+		"--device","/dev/dri/card1",
+		"--device","/dev/dri/renderD128",
+
+		//"-e HOME='/home/appuser'",
+		
+		"-e DISPLAY",
+		"-v","/tmp/.X11-unix:/tmp/.X11-unix:rw"
+		//"-v","${localEnv:XAUTHORITY}:/root/.Xauthority:ro",
+		//"-v","${localEnv:XAUTHORITY}:/home/appuser/.Xauthority:ro",
+		// With/for flatpak, this requires running vscode with XAUTHORITY2 set
+		// because flatpak-run-x11.c sets XAUTHORITY to /var/run/XAuthority uncondtionally
+		//"-v","${localEnv:XAUTHORITY2}:/root/.Xauthority:ro",
+		//"-v","${localEnv:XAUTHORITY2}:/home/appuser/.Xauthority:ro"
+	],
 
 	// run the container with all GPUs
 	//"runArgs": [
@@ -64,7 +91,6 @@
 		//	// "version": "2.0.0"
 		// },
 		// // python
-
 		"ghcr.io/devcontainers/features/python:1": {
 			// "version": "1.7.0"
 		},
@@ -132,10 +158,10 @@
 				"nlehmann.vscode-vim-search-and-replace"
 			]
 		}
-	},
+	}
 	
 	// 6. Set `remoteUser` to `root` to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-	"remoteUser": "root"
+	//"remoteUser": "root"
 
 	// the following commands are related to container lifecylce. More info: https://containers.dev/implementors/json_reference/#lifecycle-scripts
 	
@@ -144,6 +170,7 @@
 
 	// 8. Use 'onCreateCommand' to run commands INSIDE THE CONTAINER after it started for the first time.
 	// // "onCreateCommand": "mamba install -q -y -c conda-forge python=3.12 ipykernel pandas numpy sympy ipykernel rust lua xeus-lua make jupyterlite && python -m ipykernel install --user --name=python3.12"
+	//"onCreateCommand": "vinegar run",
 	
 	// 9. Use 'updateContentCommand' to run commands if the root filetree have any changes, during container creation.
 	// "updateContentCommand": "",
