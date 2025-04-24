@@ -53,9 +53,8 @@ local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
 --local e = React.createElement
 
 
-local function SpawnLocationComponent(props: {_key: string})
+local function SpawnLocationComponent(props)
 	return React.createElement("SpawnLocation", {
-			key=props._key,
 			Position=Vector3.new(0, 10, 0),
 			Rotation=Vector3.new(45, 0, 45),
 			Size=Vector3.new(20,1,20),
@@ -70,13 +69,7 @@ local function SpawnLocationComponent(props: {_key: string})
 end
 
 local function BigRedBallComponent(props)
---[[: {
-	_key: string,
-	xmin: number,
-	xmax: number,
-}]]--,
 	return React.createElement("Part", {
-			key=props._key,
 			ref=props._ref,
 			Shape=Enum.PartType.Ball,
 			Size=Vector3.new(4,4,4),
@@ -85,13 +78,17 @@ local function BigRedBallComponent(props)
 		}, props.children)
 end
 
-function AreaVolumeCube(props)
+function AreaVolumeCube(props: {
+	dimensions: Vector3,
+	origin: Vector3,
+	blockSpacing: Vector3?,
+	blockSize: Vector3?,
+	labelColor: Color3?,
+	rotation: Vector3?,
+	_ref: any})
 
-	local cubeRef = props.cubeRef
-	--local props = table.clone(_props)
-	--local props = {_key=_props._key}
-	props.dimensions = Vector3.new(3, 4, 10)
-	props.origin = Vector3.new(20, 30, 50)
+	props.dimensions = props.dimensions or Vector3.new(3, 4, 10)
+	props.origin = props.origin or Vector3.new(20, 30, 50)
 	--props.rotation = Vector3.new(1,1,1) -- TODO
 
 	--props.origin = Vector3.new(20, 6, -50)
@@ -101,12 +98,12 @@ function AreaVolumeCube(props)
 
 	--props.blockSpacing = Vector3.new(1, 1, 1)
 	--props.blockSpacing = Vector3.new(1.2, 1.2, 1.5)
-	props.blockSpacing = Vector3.new(2, 2, 3)
-	props.blockSize = Vector3.new(8, 8, 8)
+	props.blockSpacing = props.blockSpacing or Vector3.new(2, 2, 2)
+	props.blockSize = props.blockSize or Vector3.new(8, 8, 8)
 
 	--props.labelColor = Color3.new(0.8, 0.8, 0.8)
-	props.labelColor = Color3.new(0.847059, 0.705882, 0.074510)
-	props.labelColor = Color3.fromRGB(204, 192, 101)
+	--props.labelColor = Color3.new(0.847059, 0.705882, 0.074510)
+	props.labelColor = props.labelColor or Color3.fromRGB(204, 192, 101)
 
 	print("INFO: Drawing a (" .. tostring(props.dimensions) .. ") cube of cubes, an AreaVolumeCube ...")
 
@@ -167,7 +164,7 @@ function AreaVolumeCube(props)
 					})
 				end
 				local blockPart = React.createElement("Part", {
-					key = blockdata._key,
+					key = string.format("Block%02d,%02d,%02d", x, y, z),
 					ref = blockdata.partRef,
 					--Name = string.format("Block_%02d,%02d,%02d", x, y, z),
 					Anchored = true,
@@ -207,9 +204,7 @@ function AreaVolumeCube(props)
 	end
 
 	return React.createElement("Model", {
-		key=props._key,
 		ref=props._ref,
-		--Name = string.format("AreaVolumeCube%d", props._key),
 		--Size = Vector3.new(200, 200, 200), -- TODO: volumetric .size/.extentsSize (?) of cube assembly
 		--CanCollide = false,
 		--Anchored = true,
@@ -218,16 +213,13 @@ end
 
 
 local function CameraOnPartComponent(props: {
-	_key: string,
 	CameraSubject: any?,
 	CameraType: any?,
 	FieldOfView: number?,
 	ref: any?,
 	VRTiltAndRollEnabled: boolean?})
 	return React.createElement("Camera", {
-		key=props._key,
 		ref=props.ref,
-		--Name=string.format("Camera_%s", props._key),
 		CameraSubject=props.CameraSubject,
 		CameraType=props.CameraType or Enum.CameraType.Follow,
 		FieldOfView=props.FieldOfView or 70,
@@ -238,7 +230,6 @@ end
 
 local function FrameComponent(props) 
 	return React.createElement("Frame", {
-		key=props._key,
 		Position=props.Position,
 		Size=props.Size,
 		BorderSizePixel=4,
@@ -250,8 +241,6 @@ end
 
 local function TextButtonComponent(props)
 	return React.createElement("TextButton", {
-		key=props._key,
-		--Name=props._key,
 		Text=props.Text,
 		TextSize=32,
 		Position=props.Position,
@@ -262,31 +251,32 @@ local function TextButtonComponent(props)
 		BackgroundTransparency=0.5,
 		[React.Event.Activated]=props[React.Event.Activated] or function(arg1, arg2, arg3)
 			print(string.format("DEBUG: TextButton{key=%s}.Activated=%s =%s =%s",
-				tostring(props._key), tostring(arg1), tostring(arg2), tostring(arg3)))
+				tostring(props.key), tostring(arg1), tostring(arg2), tostring(arg3)))
 		end
 	})
 end
 
 local function init()
-	local spawnLocation = React.createElement(SpawnLocationComponent, {_key=0, key=-1})
+	local spawnLocation1 = React.createElement(SpawnLocationComponent, {key='SpawnLocation1'})
 
 
 	local cubeRef = React.createRef()
-	local areaVolumeCube = React.createElement(AreaVolumeCube, {_key=1, key=1, _ref=cubeRef})
-	-- local AreaVolumeCube_ForwardRef = React.forwardRef(function (props, ref)
-	-- 	return React.createElement(AreaVolumeCube, {_key=2, ref=ref}, props.children)
-	-- end)
-	-- local areaVolumeCube = React.createElement(AreaVolumeCube_ForwardRef, {ref=cubeRef})
-
-
+	local areaVolumeCube1 = React.createElement(AreaVolumeCube, {key='Cube1',
+		--ref=cubeRef, -- function components cannot be given refs
+		dimensions=Vector3.new(3, 4, 5),
+		origin=Vector3.new(20, 30, 50),
+		blockSpacing=Vector3.new(2, 2, 2),
+		blockSize=Vector3.new(8, 8, 8),
+		labelColor=Color3.fromRGB(204, 192, 101),
+	})
 	local ball1Ref = React.createRef()
-	local ball1 = React.createElement(BigRedBallComponent, {_key=3, key=3,_ref=ball1Ref})
-	local ball2 = React.createElement(BigRedBallComponent, {_key=4, key=4, })
-	local ball3 = React.createElement(BigRedBallComponent, {_key=5, key=5})
+	local ball1 = React.createElement(BigRedBallComponent, {key='Ball1', _ref=ball1Ref})
+	local ball2 = React.createElement(BigRedBallComponent, {key='Ball2'})
+	local ball3 = React.createElement(BigRedBallComponent, {key='Ball3'})
 
 
 	local function PlayerCameraComponent (props)
-		return React.createElement(CameraOnPartComponent, {_key=props._key,
+		return React.createElement(CameraOnPartComponent, {
 			_ref=props._ref,
 			CameraSubject=props.CameraSubject,
 			--CameraSubject=game:getService("Players").LocalPlayer:WaitForChild("Character"):WaitForChild("Humanoid"),
@@ -300,7 +290,7 @@ local function init()
 	-- 	self:setState({})
 	-- end
 	-- function CameraComponent2:render()
-	-- 	return React.createElement(CameraOnPartComponent, {_key=self.props._key,
+	-- 	return React.createElement(CameraOnPartComponent, {
 	-- 		ref=self.props._ref,
 	-- 		CameraSubject=self.props.CameraSubject,
 	-- 	})
@@ -308,7 +298,7 @@ local function init()
 
 
 	local function CameraComponent (props)
-		return React.createElement(CameraOnPartComponent, {_key=props._key,
+		return React.createElement(CameraOnPartComponent, {
 			_ref=props._ref,
 			CameraSubject=props.CameraSubject,
 		}, props.children)
@@ -317,64 +307,67 @@ local function init()
 	local camera1_ref = React.createRef()
 	local camera2_ref = React.createRef()
 	local camera3_ref = React.createRef()
-	local camera1 = React.createElement(PlayerCameraComponent, {_key=6, key=6, CameraSubject=cubeRef.current, _ref=camera1_ref})
-	local camera2 = React.createElement(CameraComponent, {_key=7, key=7, CameraSubject=cubeRef.current, _ref=camera2_ref})
-	local camera3 = React.createElement(CameraComponent, {_key=8, key=8, CameraSubject=ball1Ref.current, _ref=camera3_ref})
+	local camera1 = React.createElement(PlayerCameraComponent, {key='PlayerCamera1', CameraSubject=cubeRef.current, _ref=camera1_ref})
+	local camera2 = React.createElement(CameraComponent, {key='Camera2', CameraSubject=cubeRef.current, _ref=camera2_ref})
+	local camera3 = React.createElement(CameraComponent, {key='Camera3', CameraSubject=ball1Ref.current, _ref=camera3_ref})
 
-	local cameraRefs = {{current=workspace.Camera}, camera1_ref, camera2_ref, camera3_ref}
-	local refs = {cubeRef=cubeRef, ball1Ref=ball1Ref, cameras=cameraRefs}
+	local camera_refs = {{current=workspace.Camera}, camera1_ref, camera2_ref, camera3_ref}
+	local refs = {cubeRef=cubeRef, ball1Ref=ball1Ref, cameras=camera_refs}
 
 
-	local function AreaVolumeCubeComponent(props: {_key: number})
-		return React.createElement("Model", {
-			key=props._key,
-			--Name=string.format("AppRoot%d", props._key)
+	local function AreaVolumeCubeComponent(props)
+		return React.createElement(React.Fragment, {
 		}, {
-			[1]=spawnLocation,
-			[2]=areaVolumeCube,
-			[3]=ball1,
-			[4]=ball2,
-			[5]=ball3,
-			[6]=camera1,
-			[7]=camera2,
-			[8]=camera3,
+			spawnLocation1,
+			areaVolumeCube1,
+			ball1,
+			ball2,
+			ball3,
+			camera1,
+			camera2,
+			camera3,
 		})
 	end
 
 
 	local handle = Instance.new("Model")
-	handle.Name = "AppRoot"
+	handle.Name = "AreaVolumeCube1"
 	handle.Parent = workspace
 
-
 	local root = ReactRoblox.createRoot(handle)
-	root:render(React.createElement(AreaVolumeCubeComponent, {_key=1}))
+	root:render(React.createElement(AreaVolumeCubeComponent, {key='AreaVolumeCube1'}))
 	print("DEBUG: client: root::render(AreaVolumeCubeComponent) done")
 
 
-	local function GuiRootComponent(props: {_key: number, cameras: any})
+	local function GuiRootComponent(props: {cameras: any, dimensions: Vector3})
 		return React.createElement(React.Fragment, {
-			key=props._key,
-			--Name=string.format("AppRoot%d", props._key)
 		}, {
 			[1]=React.createElement(FrameComponent, {
-				_key=1,
-				key=1,
+				key="Frame1",
 				Position=UDim2.new(0.8, 0, 0.7, 0),
 				Size = UDim2.new(0, 200, 0, 20),
 			}),
 			[2]=React.createElement(TextButtonComponent, {
-				_key=2,
-				key=2,
+				key="TextButton2",
 				Text="Press me!",
 				Position=UDim2.new(0.8, 0, 0.8, 0),
 				Size=UDim2.new(0, 200, 0, 50),
 
 				[React.Event.Activated]=function(arg1, arg2, arg3)
-					print(string.format("DEBUG: TextButton{key=%s}.Activated=%s =%s =%s",
-						tostring(props._key), tostring(arg1), tostring(arg2), tostring(arg3)))
+					print(string.format("DEBUG: TextButton2.Activated=%s =%s =%s",
+						tostring(arg1), tostring(arg2), tostring(arg3)))
 
 					print(string.format("DEBUG: props.cameras=%s", tostring(props.cameras)))
+
+					for x=1, props.dimensions.X do
+						local block = workspace.AreaVolumeCube1.Cube1[string.format("Block%02d,%02d,%02d", x, 1, 1)]
+						if block then
+							block.Anchored = true
+							block.Transparency = 0.5
+						else
+							print(string.format("ERROR: Block not found: Block%02d,%02d,%02d", x, 1, 1))
+						end
+					end
 
 					local n_camera = 1;
 					local n_prevCamera = n_camera
@@ -396,7 +389,10 @@ local function init()
 	local Players = game:GetService("Players")
 	local guiHandle = Instance.new("ScreenGui")
 	local guiRoot = ReactRoblox.createRoot(guiHandle)
-	guiRoot:render(React.createElement(GuiRootComponent, {_key=1, cameras=cameraRefs}))
+	guiRoot:render(React.createElement(GuiRootComponent, {key='GuiRoot1',
+		cameras=camera_refs,
+		dimensions=areaVolumeCube1.props.dimensions,
+	}))
 	guiHandle.Parent = Players.LocalPlayer.PlayerGui
 	print("DEBUG: client: guiRoot::render(GuiRootComponent) done")
 
