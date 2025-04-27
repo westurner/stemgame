@@ -44,15 +44,15 @@ function init()
     end)
 
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        logServerEvents("InputBegan: " .. input.UserInputType.Name .. " gameProcessed=" .. gameProcessed)
+        logServerEvents("InputBegan: " .. input.UserInputType.Name .. " gameProcessed=" .. tostring(gameProcessed))
     end)
 
     UserInputService.InputEnded:Connect(function(input, gameProcessed)
-        logServerEvents("InputEnded: " .. input.UserInputType.Name  .. " gameProcessed=" .. gameProcessed)
+        logServerEvents("InputEnded: " .. input.UserInputType.Name  .. " gameProcessed=" .. tostring(gameProcessed))
     end)
 
     UserInputService.InputChanged:Connect(function(input, gameProcessed)
-        logServerEvents("InputChanged: " .. input.UserInputType.Name  .. " gameProcessed=" .. gameProcessed)
+        logServerEvents("InputChanged: " .. input.UserInputType.Name  .. " gameProcessed=" .. tostring(gameProcessed))
     end)
 
     print("DEBUG: server: Done.")
