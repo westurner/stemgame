@@ -173,3 +173,10 @@ podman-run-preview:
 
 vinegar:
 	$(MAKE) podman-run PODMAN_CMD="vinegar run"
+
+CODE=code
+CODE=flatpak run com.visualstudio.code
+vscode:
+	$(CODE) .
+
+code: vscode
