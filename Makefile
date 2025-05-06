@@ -99,6 +99,14 @@ podman-build:
 podman-config-check-issues:
 	set -x && cat /usr/share/containers/oci/hooks.d/oci-nvidia-hook.json
 
+
+PODMAN=podman
+#PODMAN=docker
+#PODMAN=nerdctl
+
+# Set this to --rm to remove containers after use
+PODMAN_RM=
+
 ## For a system with one GPU:
 # PODMAN_GPU_DEVICES= \
 #		--device /dev/dri/card0 \
@@ -134,10 +142,6 @@ PODMAN_VOLUMES_workspace=-v ${PWD}/../..:/workspace
 PODMAN_VOLUMES_bashhistory=-v ${VIRTUAL_ENV}/.bash_history:/home/appuser/.bash_history 
 PODMAN_VOLUMES=${PODMAN_VOLUMES_dotenv} ${PODMAN_VOLUMES_workspace} ${PODMAN_VOLUMES_bashhistory} -v /etc/subuids -v /etc/subgids
 
-PODMAN=podman
-
-PODMAN_RM=
-
 podman-run:
 	${PODMAN} run \
 		${PODMAN_OPTS} \
@@ -170,6 +174,9 @@ podman-run-rm:
 
 podman-run-preview:
 	$(MAKE) podman-run PODMAN="echo '${PODMAN}'"
+
+podman-run-rojo-serve:
+	$(MAKE) podman-run PODMAN_RM="--rm" PODMAN_CMD="cd /workspace/src/stemgame; rojo serve"
 
 vinegar:
 	$(MAKE) podman-run PODMAN_CMD="vinegar run"
