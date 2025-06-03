@@ -14,6 +14,9 @@ shared-packages = "game.ReplicatedStorage.Packages"
 React = "jsdotlua/react@17.2.1"
 ReactRoblox = "jsdotlua/react-roblox@17.2.1"
 
+# https://github.com/chriscerie/react-error-boundary
+ReactErrorBoundary = "chriscerie/react-error-boundary@0.2.0"
+
 # https://github.com/jsdotlua/otter
 ReactOtter = "jsdotlua/otter@1.2.1"
 #ReactOtter = "Roblox/otter@1.2.1"
@@ -27,6 +30,7 @@ RoactNavigation = "jsdotlua/roact-navigation@0.5.10"
 
 # https://github.com/Roblox/roact-rodux
 #RoactRodux = "roblox/roact-rodux@0.5.1"
+
 
 
 [dev-dependencies]
