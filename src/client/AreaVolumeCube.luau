@@ -1,5 +1,5 @@
 --!strict
-print("DEBUG: AreaVolumeCube.client: Starting...")
+print("DEBUG: AreaVolumeCube: Starting...")
 
 --[[
 # TODO
@@ -47,45 +47,30 @@ print("DEBUG: AreaVolumeCube.client: Starting...")
 --local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local ReactDevtools = require(ReplicatedStorage.DevPackages.ReactDevtools)
-local debugMode = false;
-ReactDevtools.setup(debugMode)
+local debugMode = false
+if (debugMode) then
+    local ReactDevtools = require(ReplicatedStorage.DevPackages.ReactDevtools)
+    ReactDevtools.setup(debugMode)
+end
 
 local React = require(ReplicatedStorage.Packages.React)
 local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
 --local e = React.createElement
 
 
-local function SpawnLocationComponent(props)
-	return React.createElement("SpawnLocation", {
-			Position=Vector3.new(0, 10, 0),
-			Rotation=Vector3.new(45, 0, 45),
-			Size=Vector3.new(20,1,20),
-			Material=Enum.Material.Ground,
-		}, {
-			[1]=React.createElement("Decal", {
-				key="Decal1",
-				Texture = "rbxasset://textures/SpawnLocation.png",
-				Face = Enum.NormalId.Top
-			})
-		})
-end
+local BallComponent = require(script.Parent.BallComponent)
+local CameraComponent = require(script.Parent.CameraComponent)
+local CameraOnPartComponent = require(script.Parent.CameraOnPartComponent)
+local CameraOnPlayerComponent = require(script.Parent.CameraOnPlayerComponent)
+local DolmenComponent = require(script.Parent.DolmenComponent)
+local SpawnLocationComponent = require(script.Parent.SpawnLocationComponent)
+local LightsButtonComponent = require(script.Parent.LightsButtonComponent)
+local TextButtonComponent = require(script.Parent.TextButtonComponent)
 
 
-local function BigRedBallComponent(props)
-	return React.createElement("Part", {
-			ref=props._ref,
-			Shape=props.Shape or Enum.PartType.Ball,
-			Size=props.Size or Vector3.new(7,7,7),
-			Color=props.Color or Color3.new(0.7, 0, 0),
-			Material=props.Material or Enum.Material.Neon,
-			Position=props.Position or Vector3.new(0,20,0)
-		}, props.children)
-end
 
-
-local AreaVolumeCube = React.Component:extend("AreaVolumeCube")
-function AreaVolumeCube:init(props: {
+local AreaVolumeCubeComponent = React.Component:extend("AreaVolumeCube")
+function AreaVolumeCubeComponent:init(props: {
 	dimensions: Vector3?,
 	origin: Vector3?,
 	blockSpacing: Vector3?,
@@ -125,14 +110,14 @@ function AreaVolumeCube:init(props: {
 	--props.labelColor = props.labelColor or Color3.fromRGB(233, 232, 229)
 	props.labelColor = props.labelColor or Color3.fromRGB(34, 34, 34)
 
-	print("INFO: Drawing a (" .. tostring(props.dimensions) .. ") cube of cubes, an AreaVolumeCube ...")
+	print("INFO: AreaVolumeCube:init: Drawing a (" .. tostring(props.dimensions) .. ") cube of cubes, an AreaVolumeCube ...")
 
 	self.blocksArray = {}
 
 	-- self.blocksArray, _ = React:useState({})
 end
 
-function AreaVolumeCube:render()
+function AreaVolumeCubeComponent:render()
 	local areaVolumeCubeParts = {}
 	local props = self.props
 
@@ -239,50 +224,7 @@ function AreaVolumeCube:render()
 end
 
 
-function _next_block_xyz(block_position: Vector3, dimensions: Vector3)
-	local next_block = block_position + Vector3.new(1, 0, 0)
-	if next_block.X > dimensions.X then
-		next_block = Vector3.new(1, next_block.Y + 1, next_block.Z)
-		if next_block.Y > dimensions.Y then
-			next_block = Vector3.new(1, 1, next_block.Z + 1)
-			if next_block.Z > dimensions.Z then
-				next_block = Vector3.new(1, 1, 1) -- reset to first block
-			end
-		end
-	end
-	return next_block
-end
-
-function _next_block_zxy(block_position: Vector3, dimensions: Vector3)
-	local next_block = block_position + Vector3.new(0, 0, 1)
-	if next_block.Z > dimensions.Z then
-		next_block = Vector3.new(next_block.X + 1, next_block.Y, 1)
-		if next_block.X > dimensions.X then
-			next_block = Vector3.new(1, next_block.Y + 1, 1)
-			if next_block.Y > dimensions.Y then
-				next_block = Vector3.new(1, 1, 1) -- reset to first block
-			end
-		end
-	end
-	return next_block
-end
-
-function _next_block_zyx(block_position: Vector3, dimensions: Vector3)
-	local next_block = block_position + Vector3.new(0, 0, 1)
-	if next_block.Z > dimensions.Z then
-		next_block = Vector3.new(next_block.X, next_block.Y + 1, 1)
-		if next_block.Y > dimensions.Y then
-			next_block = Vector3.new(next_block.X + 1, 1, 1)
-			if next_block.X > dimensions.X then
-				next_block = Vector3.new(1, 1, 1) -- reset to first block
-			end
-		end
-	end
-	return next_block
-end
-
-
-function AreaVolumeCube:setAllUnanchored()
+function AreaVolumeCubeComponent:setAllUnanchored()
 	-- TODO
 	for x in self.blocksArray do
 		local block = self.blocksArray[x]
@@ -305,149 +247,152 @@ end
 -- 	})
 -- end
 
-local function TextButtonComponent(props)
-	return React.createElement("TextButton", {
-		Text=props.Text,
-		TextSize=32,
-		Position=props.Position,
-		Size=props.Size,
-		BorderSizePixel=4,
-		Visible=true,
-		Active=true,
-		BackgroundTransparency=0.5,
-		[React.Event.Activated]=props[React.Event.Activated] or function(arg1, arg2, arg3)
-			print(string.format("DEBUG: TextButton{key=%s}.Activated=%s =%s =%s",
-				tostring(props.key), tostring(arg1), tostring(arg2), tostring(arg3)))
-		end
-	})
-end
 
 
-local LightsButtonComponent = React.Component:extend("LightsButtonComponent")
 
-function LightsButtonComponent:init()
-	if not self.props.dimensions then
-		error("LightsButtonComponent: dimensions prop is required")
-	end
 
-	self.prev = {} -- store previous attributes for each block by eventid
 
+local AreaVolumeCubeSceneComponent = React.Component:extend("AreaVolumeCubeSceneComponent")
+function AreaVolumeCubeSceneComponent:init()
+	self.props = self.props or {}
 	self:setState({
-		dimensions=self.props.dimensions,
+		dimensions=Vector3.new(3, 4, 10),
 		current_block=Vector3.new(1,1,1)})
 end
 
-function LightsButtonComponent:decorateBlock(block, eventid)
-	self.attrs = {'BrickColor', 'Material', 'Transparency'}
+function AreaVolumeCubeSceneComponent:render()
+	local refs = {}
 
-	self.prev[block] = self.prev[block] or {}
-	self.prev[block][eventid] = self.prev[block][eventid] or {}
+	refs.balls = {}
+	refs.ball1 = React.createRef()
+	refs.ball2 = React.createRef()
+	refs.ball3 = React.createRef()
 
-	for _, attr in ipairs(self.attrs) do
-		self.prev[block][eventid][attr] = block[attr]
+	local currentPlayer = game:GetService("Players").LocalPlayer.Character and
+		game:GetService("Players").LocalPlayer.Character:WaitForChild("Humanoid") or nil
+	-- TODO: on characteradded, set currentPlayer  to the Humanoid of the LocalPlayer's Character
+	if not currentPlayer then
+		print("ERROR: AreaVolumeCube: currentPlayer is nil, waiting for LocalPlayer.Character.Humanoid")
+		currentPlayer = game:GetService("Players").LocalPlayer.CharacterAdded:Wait():WaitForChild("Humanoid")
 	end
 
-	-- set new attributes
-	block.BrickColor = BrickColor.new("Bright red")
-	block.Material = Enum.Material.Neon
-	--block.Transparency = 0.8
-end
+	refs.camera1 = React.createRef()
+	refs.camera2 = React.createRef()
+	refs.camera3 = React.createRef()
+	refs.cube1 = React.createRef()
 
-function LightsButtonComponent:undecorateBlock(block, eventid)
-	if self.attrs then
-		-- restore previous attributes
-		for _, attr in ipairs(self.attrs) do
-			block[attr] = self.prev[block][eventid][attr]
-			--block[attr] = block:GetAttribute(string.format("__prev__%s", attr))
-			--block:SetAttribute(string.format("__prev__%s", attr), nil)	
-		end
-	else
-		--print("ERROR: BlockButtonComponent: undecorateBlock: previousState not found for block=" .. tostring(block))
-		block.BrickColor = BrickColor.new("Medium stone grey")
-		block.Material = Enum.Material.Rock
-		block.Transparency = 0.5
-	end
-end
 
-function LightsButtonComponent:render()
-	return React.createElement(TextButtonComponent, {
-		Text="Lights",
-		Position=UDim2.new(0.8, 0, 0.8, 0),
-		Size=UDim2.new(0, 200, 0, 50),
+	-- local _cameras = {
+	-- 	camera0, -- workspace.Camera
+	-- 	camera1, -- PlayerCameraComponent
+	-- 	camera2, -- CameraComponent for AreaVolumeCube
+	-- 	camera3, -- CameraComponent for BigRedBallComponent
+	-- }
+	refs._cameras = {{_current=workspace.Camera}, refs.camera1, refs.camera2, refs.camera3}
 
-		[React.Event.Activated]=function(eventobj, inputobj, arg3)
-			print(string.format("DEBUG: BlockButtonComponent.Activated eventobj=%s inputobj=%s arg3=%s",
-				tostring(eventobj), tostring(inputobj), tostring(arg3)))
 
-			for i=1, (2*self.state.dimensions.X * self.state.dimensions.Y * self.state.dimensions.Z) do
-				local current_block = self.state.current_block
-				local block_key = string.format("Block%02d,%02d,%02d",
-					current_block.x,
-					current_block.y,
-					current_block.z)
-				local block = workspace.AreaVolumeCube1.Cube1[block_key]
-				if block then
-					local eventid = os.clock()
-					self:decorateBlock(block, eventid)
-					task.wait(0.3)
-					self:undecorateBlock(block, eventid)
+	local element = React.createElement(React.Fragment, {
+		}, {
+		--[1]=React.createElement(FrameComponent, {
+		--	key="Frame1",
+		--	Position=UDim2.new(0.8, 0, 0.7, 0),
+		--	Size = UDim2.new(0, 200, 0, 20),
+		--}),
+		spawnLocation1 = React.createElement(SpawnLocationComponent, {}),
 
-					self:setState({
-						current_block=_next_block_xyz(current_block, self.state.dimensions)
-					})
-				else
-					print(string.format("ERROR: Block not found: %s", block_key))
-				end
-				--task.wait(0.3)
-			end
-		end
+		--camera0 = workspace.Camera
+		areaVolumeCube1 = React.createElement(AreaVolumeCubeComponent, {
+			ref=refs.cube1,
+			dimensions=Vector3.new(4, 3, 2),
+			origin=Vector3.new(20, 50, 50),
+			--blockSpacing=Vector3.new(1, 1, 1),
+			--blockSpacing=Vector3.new(1.5, 1, 2),
+			--blockSpacing=Vector3.new(2, 2, 2),
+			blockSpacing=Vector3.new(1.2, 1.2, 1.2),
+			--blockSize=Vector3.new(8, 8, 8),
+			--blockSize=Vector3.new(12, 12, 12),
+			blockSize=Vector3.new(42, 42, 42),
+			--blockBrickColor=BrickColor.new("Maroon"),
+			--blockBrickColor = BrickColor.new("Teal"),
+			--blockBrickColor = BrickColor.new(170,0,0),
+			--blockBrickColor = BrickColor.new("Dark green"),  "Toothpaste green", "Olivine green"
+			--blockBrickColor = BrickColor.new("Flint"),
+			--blockBrickColor = BrickColor.new("Storm blue"),
+			--blockBrickColor = BrickColor.new("Medium lilac"),
+			blockBrickColor = BrickColor.new("Dark stone grey"),
+			--blockColor = Color3.new(170,0,0), -- Just glowing when neon
+			--blockColor = Color3.new(200,0,0), -- Just glowing when neon
+			blockMaterial = Enum.Material.Neon,
+			--labelColor=Color3.fromRGB(34, 34, 34),
+			--labelColor=Color3.fromRGB(200, 54, 34),
+			labelColor=Color3.fromRGB(0,0,0)
+		}),
+
+		ball1 = React.createElement(BallComponent, {Color=Color3.fromRGB(200, 0, 0), _ref=refs.ball1}),
+		ball2 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 200, 42), _ref=refs.ball2}),
+		ball3 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 0, 200), _ref=refs.ball3}),
+
+		camera1 = React.createElement(CameraOnPlayerComponent, {
+			_ref=refs.camera1,
+			CameraSubject=currentPlayer,
+			CameraType=Enum.CameraType.Track
+		}),
+		camera2 = React.createElement(CameraComponent, {
+			_ref=refs.camera2,
+			CameraSubject=refs.cube1.current,
+			CameraType=Enum.CameraType.Track,
+			Focus=CFrame.new(Vector3.new(0,30,0))
+		}),
+		camera3 = React.createElement(CameraComponent, {
+			_ref=refs.camera3,
+			CameraSubject=refs.ball1.current,
+			CameraType=Enum.CameraType.Track,
+			Focus=CFrame.new(Vector3.new(0,30,0))
+		}),
+		dolmen1 = React.createElement(DolmenComponent, {
+		})
 	})
+
+
+	print("DEBUG: AreaVolumeCube: root::render(AreaVolumeCubeComponent) done")
+	return element	
+		
+	-- --TODO: a mock component for tests
+	-- --components.cubeRoot = {_internalRoot={current={stateNode={}}, containerInfo={}}, unmount=function() end}
+
 end
 
+function AreaVolumeCubeSceneComponent.main(props: {guiHandle: Instance, cameras: any, cubeDimensions: Vector3})
 
-local CameraOnPartComponent = React.Component:extend("CameraOnPartComponent")
--- function CameraOnPartComponent:init()
--- 	self:setState({})
--- end
-function CameraOnPartComponent:render()
-	return React.createElement("Camera", {
-		CameraSubject=self.props.CameraSubject,
-		CameraType=self.props.CameraType,
-		Focus=self.props.Focus,
-		FieldOfView=self.props.FieldOfView,
-		VRTiltAndRollEnabled=self.props.VRTiltAndRollEnabled,
-		--Position = Vector3.new(0, 20, 0),
-		--Orientation = Vector3.new(0, 0, 0),
-	}, self.props.children)
-end
+	print("DEBUG: AreaVolumeCubeSceneComponent.main() starting ...")
+	props.guiHandle = Instance.new("Model")
+	props.guiHandle.Name = "AreaVolumeCube1"
+	props.guiHandle.Parent = workspace
 
-local CameraComponent = React.Component:extend("CameraComponent")
--- function CameraComponent:init()
--- 	self:setState({})
--- end
-function CameraComponent:render()
-	return React.createElement(CameraOnPartComponent, {
-		ref=self.props._ref,
-		CameraSubject=self.props.CameraSubject,
-		CameraType=self.props.CameraType,
-		Focus=self.props.Focus,
-	})
-end
-
-
-local PlayerCameraComponent = React.Component:extend("CameraComponent")
-function PlayerCameraComponent:render()
-	return React.createElement(CameraOnPartComponent, {
-		ref=self.props.ref,
-		CameraSubject=self.props.CameraSubject,
-		--CameraSubject=game:getService("Players").LocalPlayer:WaitForChild("Character"):WaitForChild("Humanoid"),
-		--TODO: LocalPlayer.Character.Humanoid is not yet available
-	})
+	local sceneRoot = ReactRoblox.createRoot(props.guiHandle)
+	sceneRoot:render(React.createElement(AreaVolumeCubeComponent, {key='AreaVolumeCube1'}))
+	print("DEBUG: AreaVolumeCubeSceneComponent.main() done")
+	return sceneRoot
 end
 
 
 
-local function GuiRootComponent(props: {cameras: any, dimensions: Vector3})
+
+local Players = game:GetService("Players")
+
+
+local ScreenGuiComponent = React.Component:extend("ScreenGuiComponent")
+
+function ScreenGuiComponent:init(props: {cameras: any, cubeDimensions: Vector3})
+	self.props = self.props or {}
+	self.props.cameras = self.props.cameras or {}
+	self.props.cubeDimensions = self.props.dimensions or Vector3.new(3, 4, 10)
+	self.props.guiHandle = self.props.guiHandle or Instance.new("ScreenGui")
+	self.props.refs = {}
+	self.setState({n_camera=1})
+end
+
+function ScreenGuiComponent:render()
 	local n_camera, set_n_camera = React.useState(1)
 	return React.createElement(React.Fragment, {
 	}, {
@@ -458,7 +403,7 @@ local function GuiRootComponent(props: {cameras: any, dimensions: Vector3})
 		-- }),
 		React.createElement(LightsButtonComponent, {
 			key="BlockButton1",
-			dimensions=props.dimensions,
+			dimensions=self.props.cubeDimensions,
 		}),
 		React.createElement(TextButtonComponent, {
 			key="CameraButton1",
@@ -470,16 +415,16 @@ local function GuiRootComponent(props: {cameras: any, dimensions: Vector3})
 			print(string.format("DEBUG: CameraButton1.Activated eventobj=%s inputobj=%s arg3=%s",
 				tostring(eventobj), tostring(inputobj), tostring(arg3)))
 
-				print(string.format("DEBUG: props.cameras=%s", tostring(props.cameras)))
+				print(string.format("DEBUG: props.cameras=%s", tostring(self.props.cameras)))
 
 				n_camera = n_camera + 1
-				if n_camera > #props.cameras then
+				if n_camera > #self.props.cameras then
 					n_camera = 1
 				end
 				set_n_camera(n_camera)
 
 				-- get the reference to the Camera object from the refs
-				local nextCameraRef = props.cameras[n_camera]
+				local nextCameraRef = self.props.cameras[n_camera]
 				local nextCamera = nil
 				if nextCameraRef._current then
 					nextCamera = nextCameraRef._current
@@ -504,249 +449,42 @@ local function GuiRootComponent(props: {cameras: any, dimensions: Vector3})
 	})  -- TODO: shouldn't this raise because [1] and .key=1?
 end
 
+function ScreenGuiComponent.main(props: {guiHandle: Instance, cameras: any, cubeDimensions: Vector3,
+	Gravity: number, JumpHeight: number})
 
-local function init()
-	local components = {}
-	local refs = {}
+	print("DEBUG: ScreenGuiComponent.main() starting...")
 
-	components.spawnLocation1 = React.createElement(SpawnLocationComponent, {key='SpawnLocation1'})
+	local guiHandle = props.guiHandle or Instance.new("ScreenGui")
+	
+	local guiRoot = ReactRoblox.createRoot(guiHandle)
 
-
-	refs.cube1 = React.createRef()
-	components.areaVolumeCube1 = React.createElement(AreaVolumeCube, {key='Cube1',
-		ref=refs.cube1,
-		dimensions=Vector3.new(4, 3, 2),
-		origin=Vector3.new(20, 50, 50),
-		--blockSpacing=Vector3.new(1, 1, 1),
-		--blockSpacing=Vector3.new(1.5, 1, 2),
-		--blockSpacing=Vector3.new(2, 2, 2),
-		blockSpacing=Vector3.new(1.2, 1.2, 1.2),
-		--blockSize=Vector3.new(8, 8, 8),
-		--blockSize=Vector3.new(12, 12, 12),
-		blockSize=Vector3.new(42, 42, 42),
-		--blockBrickColor=BrickColor.new("Maroon"),
-		--blockBrickColor = BrickColor.new("Teal"),
-		--blockBrickColor = BrickColor.new(170,0,0),
-		--blockBrickColor = BrickColor.new("Dark green"),  "Toothpaste green", "Olivine green"
-		--blockBrickColor = BrickColor.new("Flint"),
-		--blockBrickColor = BrickColor.new("Storm blue"),
-		--blockBrickColor = BrickColor.new("Medium lilac"),
-		blockBrickColor = BrickColor.new("Dark stone grey"),
-		--blockColor = Color3.new(170,0,0), -- Just glowing when neon
-		--blockColor = Color3.new(200,0,0), -- Just glowing when neon
-		blockMaterial = Enum.Material.Neon,
-		--labelColor=Color3.fromRGB(34, 34, 34),
-		--labelColor=Color3.fromRGB(200, 54, 34),
-		labelColor=Color3.fromRGB(0,0,0)
-	})
-	refs.balls = {}
-	refs.ball1 = React.createRef()
-	refs.ball2 = React.createRef()
-	refs.ball3 = React.createRef()
-	components.ball1 = React.createElement(BigRedBallComponent, {key='Ball1', Color=Color3.fromRGB(200, 0, 0), _ref=refs.ball1})
-	components.ball2 = React.createElement(BigRedBallComponent, {key='Ball2', Color=Color3.fromRGB(0, 200, 0), _ref=refs.ball2})
-	components.ball3 = React.createElement(BigRedBallComponent, {key='Ball3', Color=Color3.fromRGB(0, 0, 200), _ref=refs.ball3})
-
-	local currentPlayer = game:GetService("Players").LocalPlayer.Character and
-		game:GetService("Players").LocalPlayer.Character:WaitForChild("Humanoid") or nil
-	-- TODO: on characteradded, set currentPlayer  to the Humanoid of the LocalPlayer's Character
-	if not currentPlayer then
-		print("ERROR: currentPlayer is nil, waiting for LocalPlayer.Character.Humanoid")
-		currentPlayer = game:GetService("Players").LocalPlayer.CharacterAdded:Wait():WaitForChild("Humanoid")
-	end
-
-	refs.camera1 = React.createRef()
-	refs.camera2 = React.createRef()
-	refs.camera3 = React.createRef()
-	components.camera0 = workspace.Camera
-	components.camera1 = React.createElement(PlayerCameraComponent, {key='PlayerCamera1',
-		_ref=refs.camera1,
-		CameraSubject=currentPlayer,
-		CameraType=Enum.CameraType.Track
-	})
-	components.camera2 = React.createElement(CameraComponent, {key='Camera2',
-		_ref=refs.camera2,
-		CameraSubject=refs.cube1.current,
-		CameraType=Enum.CameraType.Track,
-		Focus=CFrame.new(Vector3.new(0,30,0))
-	})
-	components.camera3 = React.createElement(CameraComponent, {key='Camera3',
-		_ref=refs.camera3,
-		CameraSubject=refs.ball1.current,
-		CameraType=Enum.CameraType.Track,
-		Focus=CFrame.new(Vector3.new(0,30,0))
-	})
-	components._cameras = {
-		components.camera0, -- workspace.Camera
-		components.camera1, -- PlayerCameraComponent
-		components.camera2, -- CameraComponent for AreaVolumeCube
-		components.camera3, -- CameraComponent for BigRedBallComponent
-	}
-	refs._cameras = {{_current=workspace.Camera}, refs.camera1, refs.camera2, refs.camera3}
-
-
-	local DolmenComponent = React.Component:extend("DolmenComponent")
-	function DolmenComponent:init(props)
-		self.props = props or {}
-		self.props._ref = self.props._ref or React.createRef()
-	end
-	function DolmenComponent:render()
-		local components = {}
-		components.areaVolumeCube1_dolmen = React.createElement("Part", {
-			key='AreaVolumeCube1_Label',
-			Position=Vector3.new(0, 26, -106),
-			Orientation=Vector3.new(21, 0, 78),
-			Size=Vector3.new(37,12,3),
-			Color=Color3.fromHex("#333333"),
-			Transparency=0.9,
-			Anchored=true,
-			Name="AreaVolumeCube1_Label",
-		}, {
-			React.createElement("SurfaceGui", {
-				key="SurfaceGuiFront",
-				Face=Enum.NormalId.Front,
-				--CanvasSize=Vector2.new(200, 200),
-				ResetOnSpawn=false,
-				ZIndexBehavior=Enum.ZIndexBehavior.Sibling,
-				SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud,
-				PixelsPerStud=28,
-			}, {
-				TextLabel1 = React.createElement("TextLabel", {
-					--key="TextLabel1",
-					Text="Area Volume Cube",
-					TextColor3=Color3.fromHex("#cccccc"),
-					FontSize=Enum.FontSize.Size96,
-					Font=Enum.Font.GothamBold,
-					--FontWeight=Enum.FontWeight.Bold,
-					TextScaled=false,
-					TextWrapped=false,
-					TextXAlignment=Enum.TextXAlignment.Center,
-					TextYAlignment=Enum.TextYAlignment.Center,
-					BackgroundTransparency=1,
-					ZIndex=2,
-					Size=UDim2.new(0.8, 0, 0.8, 0),
-					Position=UDim2.new(0.1, 0, 0.1, 0),
-				}),
-				TextLabel2 = React.createElement("TextLabel", {
-					--key="TextLabel2",
-					Text="#stemgame",
-					TextColor3=Color3.fromHex("#9c9999"),
-					FontSize=Enum.FontSize.Size60,
-					TextScaled=false,
-					TextWrapped=false,
-					TextXAlignment=Enum.TextXAlignment.Center,
-					TextYAlignment=Enum.TextYAlignment.Center,
-					BackgroundTransparency=1,
-					ZIndex=3,
-					Size=UDim2.new(0.4, 0, 0.1, 0),
-					Position=UDim2.new(0.55, 0, 0.95, 0),
-				})
-			})
-		})
-
-		components.areaVolumeCube1_dolmen_pillar2 = React.createElement("Part", {
-			key='AreaVolumeCube1_Label_pillar2',
-			Position=Vector3.new(-3.82, 21.43, -93.68),
-			Orientation=Vector3.new(-26, -40.2, 86.86),
-			Size=Vector3.new(30,10,2),
-			Color=Color3.fromHex("#333333"),
-			Transparency=0.7,
-			Anchored=true,
-		})
-
-		components.areaVolumeCube1_dolmen_pillar3 = React.createElement("Part", {
-			key='AreaVolumeCube1_Label_pillar3',
-			Position=Vector3.new(9.21, 21.90, -93.35),
-			Orientation=Vector3.new(-17.42, 55, 89.71),
-			Size=Vector3.new(30.4, 14.92, 2.03),
-			Color=Color3.fromHex("#333333"),
-			Transparency=0.7,
-			Anchored=true,
-		})
-
-		components.areaVolumeCube1_dolmen_lid1 = React.createElement("Part", {
-			key='AreaVolumeCube1_Label_dolmen_lid1',
-			Position=Vector3.new(4.92, 37.92, -91.42),
-			Orientation=Vector3.new(0.43, -3.14, 97.85),
-			Size=Vector3.new(3,27.6,16),
-			--Color=Color3.fromHex("#333333"),
-			--BrickColor=BrickColor.new("Bright blue"),
-			Material=Enum.Material.Neon,
-			Color=Color3.fromRGB(7, 116, 140),
-			Transparency=0.6,
-			Anchored=true,
-		})
-
-		return React.createElement("Model", {
-			key='Dolmen1',
-			ref=self.props._ref,
-			--Position=props.Position or Vector3.new(0, 0, 0),
-		}, {
-			components.areaVolumeCube1_dolmen,
-			components.areaVolumeCube1_dolmen_pillar2,
-			components.areaVolumeCube1_dolmen_pillar3,
-			components.areaVolumeCube1_dolmen_lid1,
-		})
-	end
-
-	components.areaVolumeCube1_dolmen1 = React.createElement(DolmenComponent, {
-		key='AreaVolumeCube1_dolmen1',
-	})
-
-	local function AreaVolumeCubeComponent(props)
-		return React.createElement(React.Fragment, {
-		}, {
-			components.spawnLocation1,
-			components.areaVolumeCube1,
-			components.areaVolumeCube1_dolmen1,
-			components.ball1,
-			components.ball2,
-			components.ball3,
-			components.camera1,
-			components.camera2,
-			components.camera3,
-		})
-	end
-
-	--local _refs = {}
-	local _refs = refs
-	_refs.cubeRoot = Instance.new("Model")
-	_refs.cubeRoot.Name = "AreaVolumeCube1"
-	_refs.cubeRoot.Parent = workspace
-
-	components.cubeRoot = ReactRoblox.createRoot(_refs.cubeRoot)
-	components.cubeRoot:render(React.createElement(AreaVolumeCubeComponent, {key='AreaVolumeCube1'}))
-	print("DEBUG: client: root::render(AreaVolumeCubeComponent) done")
-
-
-	local Players = game:GetService("Players")
-	components.guiHandle = Instance.new("ScreenGui")
-	components.guiRoot = ReactRoblox.createRoot(components.guiHandle)
-	components.guiRoot:render(React.createElement(GuiRootComponent, {key='GuiRoot1',
-		cameras=refs._cameras,
-		dimensions=components.areaVolumeCube1.props.dimensions,
+	guiRoot:render(React.createElement(ScreenGuiComponent, {key='GuiRoot1',
+		cameras=props.cameras,
+		cubeDimensions=props.cubeDimensions  -- areaVolumeCube1.props.dimensions, TODO
 	}))
-	components.guiHandle.Parent = Players.LocalPlayer.PlayerGui
-	print("DEBUG: client: guiRoot::render(GuiRootComponent) done")
 
+	props.guiHandle.Parent = Players.LocalPlayer.PlayerGui
 
-	-- ## the default roblox game settings for gravity and jump height:
-	-- game:GetService("Workspace").Gravity = 196.2 -- default is 196.2
-	-- game:GetService("Players").LocalPlayer.Character.Humanoid.JumpHeight = 50 -- default is 50
-
-	-- small planet gravity and ridiculous jump height
-	game:GetService("Workspace").Gravity = 10 -- default is 10
-	game:GetService("Players").LocalPlayer.Character.Humanoid.JumpHeight = 10 -- default is 50
-
-	-- set the camera to the first camera in components._cameras
-	if refs._cameras[1] and refs._cameras[1]._current then
-		workspace.CurrentCamera = refs._cameras[1]._current
-	else
-		print("ERROR: refs._cameras[1] is not a valid camera reference")
-	end
-
-	return {refs=refs, components=components}
+	print("DEBUG: ScreenGuiComponent.main() done.")
+	return guiRoot
 end
+
+
+
+local exports = {
+	ScreenGuiComponent=ScreenGuiComponent,
+	AreaVolumeCubeComponent=AreaVolumeCubeComponent,
+	AreaVolumeCubeSceneComponent=AreaVolumeCubeSceneComponent,
+	SpawnLocationComponent=SpawnLocationComponent,
+	BigRedBallComponent=BallComponent,
+	CameraOnPartComponent=CameraOnPartComponent,
+	CameraComponent=CameraComponent,
+	PlayerCameraComponent=CameraOnPlayerComponent,
+	LightsButtonComponent=LightsButtonComponent,
+	TextButtonComponent=TextButtonComponent,
+	-- test_init=test_init,
+}
+
 
 function test_init() 
 	local output = init()
@@ -789,7 +527,7 @@ function test_init()
 	assert (components.camera1.props.CameraSubject ~= nil, "ERROR: components.camera1.props.CameraSubject is nil")
 
 	local function tearDown()
-		print("DEBUG: AreaVolumeCube.client.test_init() - unmounting components.cubeRoot and components.guiRoot ...")
+		print("DEBUG: AreaVolumeCube.test_init() - unmounting components.cubeRoot and components.guiRoot ...")
 		-- unmount components.cubeRoot and components.guiRoot
 		-- unmount components.cubeRoot and components.guiroot, and then delete references to output.refs, output.components, output
 		components.cubeRoot:unmount()
@@ -867,13 +605,13 @@ end
 
 
 function main_test()
-	print("DEBUG: AreaVolumeCube.client.main_test() starting ...")
+	print("DEBUG: AreaVolumeCube.main_test() starting ...")
 
-	print("DEBUG: AreaVolumeCube.client.main_test.test_init() starting ...")
+	print("DEBUG: AreaVolumeCube.main_test.test_init() starting ...")
 	test_init()
-	print("DEBUG: AreaVolumeCube.client.main_test.test_init() complete.")
+	print("DEBUG: AreaVolumeCube.main_test.test_init() complete.")
 	
-	print("DEBUG: AreaVolumeCube.client.main_test() complete.")
+	print("DEBUG: AreaVolumeCube.main_test() complete.")
 end
 
 -- Run jest tests
@@ -917,11 +655,11 @@ end
 
 local function main()
 	if game:GetService("RunService").IsStudio then
-		print("INFO: AreaVolumeCube.client: main_test() starting ...")
+		print("INFO: AreaVolumeCube: main_test() starting ...")
 		main_test()
-		print("INFO: AreaVolumeCube.client: main_test() complete.")
+		print("INFO: AreaVolumeCube: main_test() complete.")
 	else
-		print("INFO: AreaVolumeCube.client: Skipping main_test() because .IsStudio is false")
+		print("INFO: AreaVolumeCube: Skipping main_test() because .IsStudio is false")
 	end
 
 
@@ -935,7 +673,8 @@ local function main()
 	-- 	main = main,
 	-- }
 end
-return main()
+
+return exports
 
 
 
