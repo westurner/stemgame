@@ -30,15 +30,17 @@
 		//"--runtime crun", // podman: "unknown flag"
 		"--gpus", "all",
 		"--device","nvidia.com/gpu=all",
+		//  $ sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+		//  $ nvidia-ctk cdi generate --output=/var/run/cdi/nvidia.yaml
 		// "--device","/dev/dri/card0",
 		// "--device","/dev/dri/renderD129",
 		"--device","/dev/dri/card1",
 		"--device","/dev/dri/renderD128",
-
-		//"-e HOME='/home/appuser'",
-		
 		"-e DISPLAY",
 		"-v","/tmp/.X11-unix:/tmp/.X11-unix:rw"
+
+		//"-e HOME='/home/appuser'",
+
 		//"-v","${localEnv:XAUTHORITY}:/root/.Xauthority:ro",
 		//"-v","${localEnv:XAUTHORITY}:/home/appuser/.Xauthority:ro",
 		// With/for flatpak, this requires running vscode with XAUTHORITY2 set
