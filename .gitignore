@@ -12,9 +12,18 @@
 .venv/
 
 # jupyterlite
+lite/
 lite/tmp/
+/.jupyterlite.doit.db
 _output/
 
 # wally
 Packages/
 DevPackages/
+
+sourcemap.json
+roblox.yml
+
+/flat-terrain*.rbxl
+
+.local_share_vinegar/
