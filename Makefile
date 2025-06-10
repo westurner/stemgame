@@ -83,20 +83,35 @@ rojo-vscode-ext-install:
 
 install-rojo-vscode-ext: rojo-vscode-ext-install
 
+
+
+RBXLXPATH=stemgame.rbxlx
+
 rojo-build:
-	rojo build -o stemgame.rbxlx .
+	rojo build -o "${RBXLXPATH}" .
 
 rojo-build-watch:
-	rojo build --watch -o stemgame.rbxlx .
+	rojo build --watch -o "${RBXLXPATH}" .
 
 rojo-serve:
-	rojo serve --address=127.0.0.1 --port 34872 . # 127.0.0.1:34872
+	rojo serve --address=127.0.0.1 --port 34872 .   # 127.0.0.1:34872
 
+rojo-upload:
+	rojo upload --TODO
 
-podman-build:
-	podman build . -t localhost/stemgame
+rojo-publish: rojo-upload
+
+rojo-run-remote:
+	echo "TODO"
+
+rojo-run-locally: run-in-roblox
+
+run-in-roblox:
+	run-in-roblox --TODO
+
 
 podman-config-check-issues:
+	set -x && test ! -f /etc/cdi/nvidia.yml || cat /etc/cdi/nvidia.yml
 	set -x && cat /usr/share/containers/oci/hooks.d/oci-nvidia-hook.json
 
 
@@ -133,14 +148,23 @@ PODMAN_LOG_LEVEL=debug
 #PODMAN_USER=root
 PODMAN_USER=appuser
 PODMAN_IMAGE=localhost/stemgame
+PODMAN_IMAGE_BUILD_TAG=localhost/stemgame
 PODMAN_CMD=bash --login
 PODMAN_OPTS=
 
 PODMAN_VOLUMES_dotenv=-v ${PWD}/.env.devcontainer.sh:/.env:rw 
 #PODMAN_VOLUMES_workspace=-v ${PWD}/..:/workspace 
 PODMAN_VOLUMES_workspace=-v ${PWD}/../..:/workspace 
-PODMAN_VOLUMES_bashhistory=-v ${VIRTUAL_ENV}/.bash_history:/home/appuser/.bash_history 
-PODMAN_VOLUMES=${PODMAN_VOLUMES_dotenv} ${PODMAN_VOLUMES_workspace} ${PODMAN_VOLUMES_bashhistory} -v /etc/subuids -v /etc/subgids
+PODMAN_VOLUMES_bashhistory=-v ${VIRTUAL_ENV}/.bash_history:/home/appuser/.bash_history
+#PODMAN_VOLUMES_vinegar_versions=-v ${PWD}/.local_share_vinegar_versions:/home/appuser/.local/share/vinegar/versions
+PODMAN_VOLUMES_vinegar=-v ${PWD}/.local_share_vinegar:/home/appuser/.local/share/vinegar
+PODMAN_VOLUMES_subuids=-v /etc/subuids -v /etc/subgids
+PODMAN_VOLUMES=${PODMAN_VOLUMES_dotenv} ${PODMAN_VOLUMES_workspace} ${PODMAN_VOLUMES_bashhistory} ${PODMAN_VOLUMES_subuids} ${PODMAN_VOLUMES_vinegar}
+
+
+podman-build:
+	$(PODMAN) build . -t "${PODMAN_IMAGE_BUILD_TAG}"
+
 
 podman-run:
 	${PODMAN} run \
@@ -177,9 +201,22 @@ podman-run-preview:
 
 podman-run-rojo-serve:
 	$(MAKE) podman-run PODMAN_RM="--rm" PODMAN_CMD="cd /workspace/src/stemgame; rojo serve"
+	@#$(MAKE) podman-run PODMAN_RM="--rm" PODMAN_CMD="cd /workspace/src/stemgame; make rojo-serve"
 
-vinegar:
+podman-run-rojo-publish:
+	$(MAKE) podman-run PODMAN_RM="--rm" PODMAN_CMD="cd /workspace/src/stemgame; make rojo-publish"
+
+podman-run-run-in-roblox:
+	$(MAKE) podman-run PODMAN_RM="--rm" PODMAN_CMD="cd /workspace/src/stemgame; make run-in-roblox"
+
+podman-run-vinegar:
+	$(MAKE) podman-run PODMAN_CMD="vinegar"
+
+podman-run-roblox-studio:
 	$(MAKE) podman-run PODMAN_CMD="vinegar run"
+
+vinegar: podman-run-vinegar
+
 
 CODE=code
 CODE=flatpak run com.visualstudio.code
