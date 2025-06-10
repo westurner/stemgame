@@ -7,6 +7,7 @@ local workspace = game:GetService("Workspace")
 --local SpawnLocation = game.SpawnLocation
 --local SpawnLocation = workspace:FindFirstChildOfClass("SpawnLocation")
 local SpawnLocation = Instance.new("SpawnLocation")
+SpawnLocation.Name = "SpawnLocation_AreaVolumeCube"
 SpawnLocation.Position = Vector3.new(0, 1000, 0)
 SpawnLocation.Rotation=Vector3.new(0, 0, 0)
 SpawnLocation.Size=Vector3.new(20,1,20)

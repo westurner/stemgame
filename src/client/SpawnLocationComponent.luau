@@ -8,6 +8,7 @@ local SpawnLocationComponent = React.Component:extend("SpawnLocationComponent")
 function SpawnLocationComponent:init()
     self.props = self.props or {}
     self.props._ref = self.props._ref or React.createRef()
+	self.props.Name =  self.props.Name or 'SpawnLocation1'
     self.props.Size=self.props.Size or Vector3.new(7,7,2)
     --self.props.Color=self.props.Color or Color3.new(0.7, 0, 0)
     self.props.Position=self.props.Position or Vector3.new(0,20,0)
@@ -18,6 +19,7 @@ end
 
 function SpawnLocationComponent:render()
 	return React.createElement("SpawnLocation", {
+			Name=self.props.Name,
 			Position=self.props.Position,
 			Rotation=self.props.Rotation,
 			Size=self.props.Size,

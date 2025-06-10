@@ -298,10 +298,10 @@ function AreaVolumeCubeSceneComponent:render()
 		--	Position=UDim2.new(0.8, 0, 0.7, 0),
 		--	Size = UDim2.new(0, 200, 0, 20),
 		--}),
-		spawnLocation1 = React.createElement(SpawnLocationComponent, {}),
+		SpawnLocation1 = React.createElement(SpawnLocationComponent, {}),
 
 		--camera0 = workspace.Camera
-		areaVolumeCube1 = React.createElement(AreaVolumeCubeComponent, {
+		AreaVolumeCube1 = React.createElement(AreaVolumeCubeComponent, {
 			ref=refs.cube1,
 			dimensions=Vector3.new(4, 3, 2),
 			origin=Vector3.new(20, 50, 50),
@@ -328,22 +328,22 @@ function AreaVolumeCubeSceneComponent:render()
 			labelColor=Color3.fromRGB(0,0,0)
 		}),
 
-		ball1 = React.createElement(BallComponent, {Color=Color3.fromRGB(200, 0, 0), _ref=refs.ball1}),
-		ball2 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 200, 42), _ref=refs.ball2}),
-		ball3 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 0, 200), _ref=refs.ball3}),
+		Ball1 = React.createElement(BallComponent, {Color=Color3.fromRGB(200, 0, 0), _ref=refs.ball1}),
+		Ball2 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 200, 42), _ref=refs.ball2}),
+		Ball3 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 0, 200), _ref=refs.ball3}),
 
-		camera1 = React.createElement(CameraOnPlayerComponent, {
+		Camera1 = React.createElement(CameraOnPlayerComponent, {
 			_ref=refs.camera1,
 			CameraSubject=currentPlayer,
 			CameraType=Enum.CameraType.Track
 		}),
-		camera2 = React.createElement(CameraComponent, {
+		Camera2 = React.createElement(CameraComponent, {
 			_ref=refs.camera2,
 			CameraSubject=refs.cube1.current,
 			CameraType=Enum.CameraType.Track,
 			Focus=CFrame.new(Vector3.new(0,30,0))
 		}),
-		camera3 = React.createElement(CameraComponent, {
+		Camera3 = React.createElement(CameraComponent, {
 			_ref=refs.camera3,
 			CameraSubject=refs.ball1.current,
 			CameraType=Enum.CameraType.Track,
@@ -475,13 +475,13 @@ local exports = {
 	ScreenGuiComponent=ScreenGuiComponent,
 	AreaVolumeCubeComponent=AreaVolumeCubeComponent,
 	AreaVolumeCubeSceneComponent=AreaVolumeCubeSceneComponent,
-	SpawnLocationComponent=SpawnLocationComponent,
-	BigRedBallComponent=BallComponent,
-	CameraOnPartComponent=CameraOnPartComponent,
-	CameraComponent=CameraComponent,
-	PlayerCameraComponent=CameraOnPlayerComponent,
-	LightsButtonComponent=LightsButtonComponent,
-	TextButtonComponent=TextButtonComponent,
+	-- SpawnLocationComponent=SpawnLocationComponent,
+	-- BigRedBallComponent=BallComponent,
+	-- CameraOnPartComponent=CameraOnPartComponent,
+	-- CameraComponent=CameraComponent,
+	-- PlayerCameraComponent=CameraOnPlayerComponent,
+	-- LightsButtonComponent=LightsButtonComponent,
+	-- TextButtonComponent=TextButtonComponent,
 	-- test_init=test_init,
 }
 

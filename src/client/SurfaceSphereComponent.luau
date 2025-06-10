@@ -121,7 +121,9 @@ function SurfaceSphereComponent:render()
 		})
 	end
 
-	return React.createElement("Folder", nil, children)
+	return React.createElement("Model",
+		{Name=self.props.name or 'SurfaceSphere1'},
+		children)
 end
 
 return SurfaceSphereComponent

@@ -12,7 +12,7 @@ function AxesComponent:init()
 end
 function AxesComponent:render()
     return React.createElement("Model", {
-        Name="AxesComponent"
+        Name=self.props.Name or "Axes1"
     }, {
         X=React.createElement(AxisComponent, {axis="X", origin=self.props.origin}),
         Y=React.createElement(AxisComponent, {axis="Y", origin=self.props.origin}),

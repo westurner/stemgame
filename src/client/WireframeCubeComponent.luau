@@ -15,7 +15,7 @@ function WireframeCubeComponent:render()
     local lineColor = self.props.lineColor or Color3.fromRGB(0, 255, 0)
 
     local model = Instance.new("Model")
-    model.Name = "WireframeCube"
+    model.Name = self.props.Name or "WireframeCube1"
 
     -- Create the main glass block part
     local block = Instance.new("Part")

@@ -75,8 +75,8 @@ end
 
 Scene001.init_gravity = function(props)
 	-- ## the default roblox game settings for gravity and jump height:
-	-- game:GetService("Workspace").Gravity = 196.2 -- default is 196.2
-	-- game:GetService("Players").LocalPlayer.Character.Humanoid.JumpHeight = 50 -- default is 50
+	-- Workspace.Gravity = 196.2 -- default is 196.2
+	-- Players.LocalPlayer.Character.Humanoid.JumpHeight = 50 -- default is 50
 
 	-- small planet gravity and ridiculous jump height
 	Workspace.Gravity = props.Gravity or 196.2 -- default is 10
@@ -120,70 +120,55 @@ function Scene001:render()
 
     local sceneRoot = React.createElement(React.Fragment, {key='Scene001',
     }, {
-        areaVolumeCube1 =
+        AreaVolumeCube1 =
             React.createElement(AreaVolumeCubeSceneComponent, {
             Position = Vector3.new(0, 0, 0) }),
-        axesComponent1 =
+        Axes1 =
             React.createElement(AxesComponent, {
             origin = Vector3.new(0, 12, 0) }),
-        blochSphereComponent1 =
+        BlochSphere1 =
             React.createElement(BlochSphereComponent, {
             Position=Vector3.new(0, 20, 0),
             Size=Vector3.new(10, 10, 10),
             Color=Color3.fromRGB(255, 0, 0),
             Material=Enum.Material.Neon,
         }),
-        surfaceSphereComponent1 =
+        SurfaceSphere1 =
             React.createElement(SurfaceSphereComponent, {
                 Position = Vector3.new(30, 15+10, 0),
                 Scale = 10
             }),
-        multiJumpComponent1 =
+        MultiJump1 =
             React.createElement(MultiJumpComponent, {
             Position = Vector3.new(0, 0, 0) }),
-        seesawComponent1 =
+        Seesaw1 =
             React.createElement(SeesawComponent, {
             Position = Vector3.new(0, 0, 0) }),
-        wireframeCubeComponent1 = 
+        WireframeCube1 =
             React.createElement(WireframeCubeComponent, {
             Position = Vector3.new(0, 0, 0) }),
 
-        glowingOrbComponent1 = 
+        GlowingOrb1 =
             React.createElement(GlowingOrbComponent, {
             Position = Vector3.new(0, 15, 400),
             Size = Vector3.new(10, 10, 10),
             Color = Color3.fromRGB(0, 143, 200),
             Material = Enum.Material.Neon,
         }),
-        glowingOrbComponent2 = 
+        GlowingOrb2 =
             React.createElement(GlowingOrbComponent, {
             Position = Vector3.new(0, 15, -400),
             Size = Vector3.new(10, 10, 10),
             Color = Color3.fromRGB(0*0.3, 143*0.3, 200*0.3),
             Material = Enum.Material.Neon,
         }),
-        -- billboardAnswersComponent1 = 
+        -- BillboardAnswers1 =
         --     React.createElement(BillboardAnswersComponent, {
         --     Position = Vector3.new(0, 0, 0) }),
     })
     print("DEBUG: Scene001:render() done.")
     return sceneRoot
 end
-
--- function init()
---     print("DEBUG: Scene001: init() starting...")
-
---     -- Initialize lighting
---     --init_lighting()
-
---     -- Load components
---     local exports = {}
-
---     -- Scene001
-
-
---     return exports
--- end
 
 print("DEBUG: Scene001: done.")
 return Scene001

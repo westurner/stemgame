@@ -128,7 +128,7 @@ function BlochSphereComponent:render()
     local yzRing = createPart("YZ_Ring", Enum.PartType.Cylinder, Vector3.new(RING_THICKNESS, ringDiameter, ringDiameter), RING_COLOR_YZ, RING_TRANSPARENCY_YZ, CENTER_POSITION, CFrame.Angles(0, math.rad(90), 0))
 
     return React.createElement("Model", {
-        key = "BlochSphereModel",
+        key = "BlochSphere1",
         ref = self.props._ref,
     }, {
         sphere,

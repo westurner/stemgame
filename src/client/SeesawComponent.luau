@@ -31,7 +31,7 @@ function SeesawComponent:render()
     local customPhysicalProperties = PhysicalProperties.new(density, friction, elasticity, frictionWeight, elasticityWeight)
 
     return React.createElement("Model", {
-        Name = "SeesawModel",
+        Name = self.props.Name or "Seesaw1",
         ref = self.props._ref,
     }, {
         Fulcrum = React.createElement("Part", {

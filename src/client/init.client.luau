@@ -19,6 +19,7 @@ local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
 --local e = React.createElement
 
 local appRootModel = Instance.new("Model") -- WorldModel? TODO
+appRootModel.Name = "AppRoot1"
 appRootModel.Parent = workspace
 
 local AappRootComponent = require(script.Parent.Client.AappRootComponent)  -- require()
