@@ -93,8 +93,8 @@ function BlochSphereComponent:render()
                       string.format("[[ %s] \n [%s]]", sqrt2, "-" .. sqrt2), 
                       string.format("[[%s] \n [%s]]", sqrt2, "i"), 
                       string.format("[[%s] \n [%s]]", sqrt2, "-i"), 
-                      string.format("[[%s] \n [%s]]", 1, 0), 
-                      string.format("[[%s] \n [%s]]", 0, 1)} 
+                      string.format("[[%s] \n [%s]]", "1", "0"), 
+                      string.format("[[%s] \n [%s]]", "0", "1")} 
         local color = {AXIS_COLOR_X, AXIS_COLOR_X, AXIS_COLOR_Y, AXIS_COLOR_Y, AXIS_COLOR_Z, AXIS_COLOR_Z}
         local offsets = {
             Vector3.new(labelDist, 0, 0),
