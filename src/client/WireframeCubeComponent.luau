@@ -1,21 +1,33 @@
 -- WireframeCubeComponent
+
+print("DEBUG: WireframeCubeComponent: Starting...")
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
 
 local WireframeCubeComponent = React.Component:extend("WireframeCubeComponent")
 
 function WireframeCubeComponent:init()
+    print("DEBUG: WireframeCubeComponent:init() ... Starting")
     self.props = self.props or {}
+    self.props.Name = self.props.Name or "WireframeCube1"
+    self.props.blockCenter = self.props.centerPosition or Vector3.new(0, 20, 15)
+    self.props.blockSize = self.props.size or Vector3.new(12, 12, 12)
+    self.props.lineThickness = self.props.lineThickness or 0.2
+    self.props.lineColor = self.props.lineColor or Color3.fromRGB(0, 255, 0)
+    print("DEBUG: WireframeCubeComponent:init() ... Done")
 end
 
 function WireframeCubeComponent:render()
-    local blockCenter = self.props.centerPosition or Vector3.new(0, 20, 15)
-    local blockSize = self.props.size or Vector3.new(12, 12, 12)
-    local lineThickness = self.props.lineThickness or 0.1
-    local lineColor = self.props.lineColor or Color3.fromRGB(0, 255, 0)
+    print("DEBUG: WireframeCubeComponent:render() ... Starting")
+
+    local blockCenter = self.props.blockCenter
+    local blockSize = self.props.blockSize
+    local lineThickness = self.props.lineThickness
+    local lineColor = self.props.lineColor
 
     local model = Instance.new("Model")
-    model.Name = self.props.Name or "WireframeCube1"
+    --model.Name = self.props.Name
 
     -- Create the main glass block part
     local block = Instance.new("Part")
@@ -85,12 +97,34 @@ function WireframeCubeComponent:render()
     end
 
     -- Set the primary part for easier manipulation (optional)
-    model.PrimaryPart = block
+    --model.PrimaryPart = block
+
+    local children = model:GetChildren()
+    print("DEBUG: WireframeCubeComponent: children=" .. tostring(children))
+    print(children)
+    print("DEBUG: WireframeCubeComponent:render() ... Done")
+
+    -- Convert children to React elements
+    local reactChildren = {}
+    for i, child in ipairs(children) do
+        reactChildren[i] = React.createElement(child.ClassName, {
+            Name = child.Name,
+            Size = child.Size,
+            Color = child.Color,
+            Material = child.Material,
+            Transparency = child.Transparency,
+            Anchored = child.Anchored,
+            CanCollide = child.CanCollide,
+            TopSurface = child.TopSurface,
+            BottomSurface = child.BottomSurface,
+            CFrame = child:GetPivot(),
+        })
+    end
 
     return React.createElement("Model", {
-        Name = model.Name,
+        Name = self.props.Name,
         ref = self.props._ref,
-    }, model:GetChildren())
+    }, reactChildren)
 end
 
 return WireframeCubeComponent
