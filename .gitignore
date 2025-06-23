@@ -27,3 +27,5 @@ roblox.yml
 /flat-terrain*.rbxl
 
 .local_share_vinegar/
+
+__pycache__/
