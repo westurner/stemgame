@@ -329,7 +329,8 @@ function AreaVolumeCubeSceneComponent:render()
 		}),
 
 		Ball1 = React.createElement(BallComponent, {Color=Color3.fromRGB(200, 0, 0), _ref=refs.ball1}),
-		Ball2 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 200, 42), _ref=refs.ball2}),
+		--Ball2 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 200, 42), _ref=refs.ball2}),
+		Ball2 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 143, 156), _ref=refs.ball2}),
 		Ball3 = React.createElement(BallComponent, {Color=Color3.fromRGB(0, 0, 200), _ref=refs.ball3}),
 
 		Camera1 = React.createElement(CameraOnPlayerComponent, {

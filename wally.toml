@@ -1,9 +1,12 @@
 [package]
 name = "westurner/stemgame"
 version = "0.1.0"
-
+description = "A Roblox game written with react-lua for STEM Math and Physics"
+license = "MIT"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
+exclude = ["assets", "docs",  ".venv", ".vscode", "lite",  "DevPackages", "Packages"]
+include = ["default.project.json", "LICENSE.txt", "Makefile", "aftman.toml", "jest.config.lua", "Dockerfile", "entrypoint.sh"]
 
 [place]
 shared-packages = "game.ReplicatedStorage.Packages"

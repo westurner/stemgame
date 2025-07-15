@@ -20,33 +20,67 @@
 	// "mounts": [],
 
 	// 3. Use 'runArgs' to pass arguments to the container. 
-	"runArgs": ["--userns=keep-id", "--security-opt=label=disable",
-		//"--gpus=all",  // optionally remoeve this line to disable GPU support
-		//"--device nvidia.com/gpu=all",
+	"runArgs": [
+		
+		// ## Rootless containers with podman
+		// If a wrapper script also sets these parameters, they are redundant
+		// if settings.json has e.g.: dev.containers.dockerPath="path_to/podman-rootless",
+		"--userns=keep-id", "--security-opt=label=disable",
+
+		// ## Logging verbosity
 		"--log-level=debug",
-		// https://github.com/NVIDIA/nvidia-container-toolkit/issues/46#issuecomment-1587350187
+
+		// ## Container Runtimes
+		// "--runtime crun",  // podman errors with: "unknown flag"
+
+		// ## Networking
 		"--net=host",
+
+		// ## IPC: Interprocess Communication
+		// $ man podman-run 2>/dev/null | grep -E '^\s+--ipc=' -A 21
+		// > • host: use the host's shared memory, semaphores, and message queues inside the container. Note: the host mode gives
+        // >   the container full access to local shared memory and is therefore considered insecure.
 		"--ipc=host",
-		//"--runtime crun", // podman: "unknown flag"
+		// - [ ] TODO: is ipc=host necessary for X11 apps?
+		// - [ ] TODO: test less permissive --ipc= parameters for rootless containers 
+
+		// ## GPU support
+		// https://github.com/NVIDIA/nvidia-container-toolkit/issues/46#issuecomment-1587350187
+		//
+		// ### generate nvidia.yaml containing mounts for --gpus containers
+		// $ sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+		// $      nvidia-ctk cdi generate --output=/var/run/cdi/nvidia.yaml
+		// $ ls -al /dev/dri/** /dev/nvidia*
+		// $ cat /etc/cdi/nvidia.yaml | grep -E -C 5 "deviceNodes:|/dev/dri|/dev/nvidia"
 		"--gpus", "all",
 		"--device","nvidia.com/gpu=all",
-		//  $ sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
-		//  $ nvidia-ctk cdi generate --output=/var/run/cdi/nvidia.yaml
+		// This system has an iGPU and a dGPU:  [(card0, renderD129), (card1, renderD128)] 
 		// "--device","/dev/dri/card0",
 		// "--device","/dev/dri/renderD129",
 		"--device","/dev/dri/card1",
 		"--device","/dev/dri/renderD128",
+
+		// ## GUI X11 / Wayland app passthrough to host
+		// ### DISPLAY for Wayland / X11 gui apps
 		"-e DISPLAY",
+
+		// ### /tmp/.X11-unix for Wayland (TODO: ?) / X11 gui apps
 		"-v","/tmp/.X11-unix:/tmp/.X11-unix:rw"
 
-		//"-e HOME='/home/appuser'",
-
+		// ### XAUTHORITY
+		// #### XAUTHORITY for Wayland / X11 GUI apps
 		//"-v","${localEnv:XAUTHORITY}:/root/.Xauthority:ro",
 		//"-v","${localEnv:XAUTHORITY}:/home/appuser/.Xauthority:ro",
+		//
+		// #### XAUTHORITY2 for Wayland / X11 GUI apps
 		// With/for flatpak, this requires running vscode with XAUTHORITY2 set
 		// because flatpak-run-x11.c sets XAUTHORITY to /var/run/XAuthority uncondtionally
 		//"-v","${localEnv:XAUTHORITY2}:/root/.Xauthority:ro",
-		//"-v","${localEnv:XAUTHORITY2}:/home/appuser/.Xauthority:ro"
+		//"-v","${localenv:XAUTHORITY2}:/home/appuser/.xauthority:ro"
+
+		// ## Set $HOME (see also: devcontainer.json `remoteUser`, `--userns`)
+		//"-e HOME='/home/appuser'",
+
 	],
 
 	// run the container with all GPUs

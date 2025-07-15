@@ -90,6 +90,17 @@ function DolmenComponent:render()
             Color=Color3.fromRGB(7, 116, 140),
             Transparency=0.6,
             Anchored=true,
+        }, {
+            surfaceLight_up = React.createElement("SurfaceLight", {
+                Brightness=2.1,
+                Face=Enum.NormalId.Right,
+                Color=Color3.new(60, 219, 255),
+            }),
+            surfaceLight_down = React.createElement("SurfaceLight", {
+                Brightness=6.5,
+                Face=Enum.NormalId.Left,
+                Color=Color3.new(130, 245, 255),
+            })
         })
     })
 end

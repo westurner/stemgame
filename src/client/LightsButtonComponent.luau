@@ -9,6 +9,9 @@ local TextButtonComponent = require(script.Parent.TextButtonComponent)
 local LightsButtonComponent = React.Component:extend("LightsButtonComponent")
 
 function LightsButtonComponent:init()
+	self.props = self.props or {}
+	self.props.cubeRef = self.props.cubeRef or nil
+
 	if not self.props.dimensions then
 		error("LightsButtonComponent: dimensions prop is required")
 	end
@@ -62,7 +65,8 @@ function LightsButtonComponent:render()
 			print(string.format("DEBUG: BlockButtonComponent.Activated eventobj=%s inputobj=%s arg3=%s",
 				tostring(eventobj), tostring(inputobj), tostring(arg3)))
 
-			local areaVolumeCube = workspace.AreaVolumeCube1 -- TODO: 
+			--local areaVolumeCube = workspace.AreaVolumeCube1 -- TODO: 
+			local areaVolumeCube = self.props.cubeRef or workspace:FindFirstChild("AreaVolumeCube1", true)
 
 			for i=1, (2*self.state.dimensions.X * self.state.dimensions.Y * self.state.dimensions.Z) do
 				local current_block = self.state.current_block

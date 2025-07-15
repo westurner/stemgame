@@ -23,11 +23,15 @@ local AxesComponent = require(script.Parent.AxesComponent)
 --local BillboardAnswersComponent = require(script.Parent.BillboardAnswersComponent)
 local BlochSphereComponent = require(script.Parent.BlochSphereComponent)
 local SurfaceSphereComponent = require(script.Parent.SurfaceSphereComponent)
-local GlowingOrbComponent = require(script.Parent.GlowingOrbComponent)
+--local GlowingOrbComponent = require(script.Parent.GlowingOrbComponent)
 local MultiJumpComponent = require(script.Parent.MultiJumpComponent)
 local SeesawComponent = require(script.Parent.SeesawComponent)
 --local SpawnLocationComponent = require(script.Parent.SpawnLocationComponent)
 local WireframeCubeComponent = require(script.Parent.WireframeCubeComponent)
+local TreeComponent = require(script.Parent.TreeComponent)
+local DoublePendulumComponent = require(script.Parent.DoublePendulumComponent)
+local AirHockeyComponent = require(script.Parent.AirHockeyComponent)
+
 --local FallbackComponent = require(script.Parent.FallbackComponent)
 
 
@@ -144,24 +148,60 @@ function Scene001:render()
         Seesaw1 =
             React.createElement(SeesawComponent, {
             Position = Vector3.new(0, 0, 0) }),
-        WireframeCube1 =
-            React.createElement(WireframeCubeComponent, {
-            Position = Vector3.new(0, 0, 0) }),
+    
+        -- WireframeCube1 =
+        --     React.createElement(WireframeCubeComponent, {
+        --         --Position = Vector3.new(-40, 25, 40),
+        --         Position = Vector3.new(140, 25, -150),
+        --         Size = Vector3.new(25, 25, 25)
+        --     }),
 
-        GlowingOrb1 =
-            React.createElement(GlowingOrbComponent, {
-            Position = Vector3.new(0, 15, 400),
-            Size = Vector3.new(10, 10, 10),
-            Color = Color3.fromRGB(0, 143, 200),
-            Material = Enum.Material.Neon,
-        }),
-        GlowingOrb2 =
-            React.createElement(GlowingOrbComponent, {
-            Position = Vector3.new(0, 15, -400),
-            Size = Vector3.new(10, 10, 10),
-            Color = Color3.fromRGB(0*0.3, 143*0.3, 200*0.3),
-            Material = Enum.Material.Neon,
-        }),
+        -- AxisCube1 =
+        --     React.createElement(WireframeCubeComponent, {
+        --         Name = "AxisCube1",
+        --         Position = Vector3.new(0, 15, 400),
+        --         Size = Vector3.new(10, 10, 10),
+        --         lineColor = Color3.fromRGB(0, 143, 200),
+        --         Material = Enum.Material.Neon,
+        --     }),
+        -- AxesCube2 =
+        --     React.createElement(WireframeCubeComponent, {
+        --         Name = "AxisCube2",
+        --         Position = Vector3.new(0, 15, -400),
+        --         Size = Vector3.new(10, 10, 10),
+        --         lineColor = Color3.fromRGB(0*0.3, 143*0.3, 200*0.3),
+        --         Material = Enum.Material.Neon,
+        --     }),
+
+        -- GlowingOrb1 =
+        --     React.createElement(GlowingOrbComponent, {
+        --         Position = Vector3.new(0, 15, 400),
+        --         Size = Vector3.new(10, 10, 10),
+        --         Color = Color3.fromRGB(0, 143, 200),
+        --         Material = Enum.Material.Neon,
+        --     }),
+        -- GlowingOrb2 =
+        --     React.createElement(GlowingOrbComponent, {
+        --         Position = Vector3.new(0, 15, -400),
+        --         Size = Vector3.new(10, 10, 10),
+        --         Color = Color3.fromRGB(0*0.3, 143*0.3, 200*0.3),
+        --         Material = Enum.Material.Neon,
+        --     }),
+        Tree1 = 
+            React.createElement(TreeComponent, {
+                Position = Vector3.new(250, 5, 250)
+            }),
+
+        DoublePendulum1 =
+            React.createElement(DoublePendulumComponent, {
+                Position = Vector3.new(-100, 32, 42)
+            }),
+    
+        AirHockey1 =
+            React.createElement(AirHockeyComponent, {
+                Position = Vector3.new(-100, 10, -100)
+            }),
+
         -- BillboardAnswers1 =
         --     React.createElement(BillboardAnswersComponent, {
         --     Position = Vector3.new(0, 0, 0) }),

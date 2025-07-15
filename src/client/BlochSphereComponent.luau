@@ -7,49 +7,109 @@ local BlochSphereComponent = React.Component:extend("BlochSphereComponent")
 function BlochSphereComponent:init()
     self.props = self.props or {}
     self.props.drawLabels = self.props.drawLabels or true
+    self.props.axisColorX = self.props.axisColorX or Color3.fromRGB(0, 0, 255)
+    self.props.axisColorY = self.props.axisColorY or Color3.fromRGB(255, 0, 0)
+    self.props.axisColorZ = self.props.axisColorZ or Color3.fromRGB(0, 255, 255)
+    self.props.axisMaterial = self.props.axisMaterial or Enum.Material.Neon
+    self.props.axisThickness = self.props.axisThickness or 0.1
+    self.props.axisTransparencyX = self.props.axisTransparencyX or self.props.axisTransparency or 0
+    self.props.axisTransparencyY = self.props.axisTransparencyY or self.props.axisTransparency or 0
+    self.props.axisTransparencyZ = self.props.axisTransparencyZ or self.props.axisTransparency or 0
+    self.props.labelOffset = self.props.labelOffset or 1.5
+    self.props.ringColorXY = self.props.ringColorXY or self.props.ringColor or Color3.fromRGB(100, 100, 100)
+    self.props.ringColorXZ = self.props.ringColorXZ or self.props.ringColor or Color3.fromRGB(100, 100, 100)
+    self.props.ringColorYZ = self.props.ringColorYZ or self.props.ringColor or Color3.fromRGB(100, 100, 100)
+    self.props.ringMaterial = self.props.ringMaterial or Enum.Material.Neon
+    self.props.ringThickness = self.props.ringThickness or 0.1
+    self.props.ringTransparency = self.props.ringTransparency or 0
+    self.props.sphereColor = self.props.sphereColor or Color3.fromRGB(0, 0, 255)
+    self.props.sphereMaterial = self.props.sphereMaterial or Enum.Material.Neon
+    self.props.sphereRadius = self.props.sphereRadius or self.props.Scale or 5
+    self.props.sphereTransparency = self.props.sphereTransparency or 0.5
 end
 
 function BlochSphereComponent:render()
-    local SPHERE_RADIUS = self.props.sphereRadius or 5
-    local AXIS_THICKNESS = self.props.axisThickness or 0.1
-    local RING_THICKNESS = self.props.ringThickness or 0.1
-    local LABEL_OFFSET = self.props.labelOffset or 1.5
-    local AXIS_COLOR_X = self.props.axisColorX or Color3.fromRGB(0, 0, 255)
-    local AXIS_COLOR_Y = self.props.axisColorY or Color3.fromRGB(255, 0, 0)
-    local AXIS_COLOR_Z = self.props.axisColorZ or Color3.fromRGB(0, 255, 255)
-    local AXIS_TRANSPARENCY_X = self.props.axisTransparencyX or self.props.axisTransparency or 0
-    local AXIS_TRANSPARENCY_Y = self.props.axisTransparencyY or self.props.axisTransparency or 0
-    local AXIS_TRANSPARENCY_Z = self.props.axisTransparencyZ or self.props.axisTransparency or 0
-    local RING_COLOR_XY = self.props.ringColorXY or self.props.ringColor or Color3.fromRGB(100, 100, 100) -- Color3.fromRGB(112, 245, 255)
-    local RING_COLOR_XZ = self.props.ringColorXZ or self.props.ringColor or Color3.fromRGB(100, 100, 100) -- Color3.fromRGB(245, 108, 108)
-    local RING_COLOR_YZ = self.props.ringColorYZ or self.props.ringColor or Color3.fromRGB(100, 100, 100) -- Color3.fromRGB(50, 81, 255) 
-    local RING_TRANSPARENCY_XY = self.props.ringTransparency or 0
-    local RING_TRANSPARENCY_XZ = self.props.ringTransparency or 0
-    local RING_TRANSPARENCY_YZ = self.props.ringTransparency or 0
-    local SPHERE_COLOR = self.props.sphereColor or Color3.fromRGB(0, 0, 255)
-    local SPHERE_TRANSPARENCY = self.props.sphereTransparency or 0.5
-    local CENTER_POSITION = self.props.Position
+    local props = self.props
+    local AXIS_COLOR_X = props.axisColorX
+    local AXIS_COLOR_Y = props.axisColorY
+    local AXIS_COLOR_Z = props.axisColorZ
+    local AXIS_MATERIAL = props.axisMaterial
+    local AXIS_THICKNESS = props.axisThickness
+    local AXIS_TRANSPARENCY_X = props.axisTransparencyX
+    local AXIS_TRANSPARENCY_Y = props.axisTransparencyY
+    local AXIS_TRANSPARENCY_Z = props.axisTransparencyZ
+    local CENTER_POSITION = props.Position
+    local LABEL_OFFSET = props.labelOffset or 1.5
+    local RING_COLOR_XY = props.ringColorXY
+    local RING_COLOR_XZ = props.ringColorXZ
+    local RING_COLOR_YZ = props.ringColorYZ
+    local RING_MATERIAL = props.ringMaterial
+    local RING_THICKNESS = props.ringThickness
+    local RING_TRANSPARENCY_XY = props.ringTransparency
+    local RING_TRANSPARENCY_XZ = props.ringTransparency
+    local RING_TRANSPARENCY_YZ = props.ringTransparency
+    local SPHERE_COLOR = props.sphereColor
+    local SPHERE_MATERIAL = props.sphereMaterial
+    local SPHERE_RADIUS = props.sphereRadius
+    local SPHERE_TRANSPARENCY = props.sphereTransparency
 
-    local function createPart(name, shape, size, color, transparency, position, orientation)
-        return React.createElement("Part", {
-            key = name,
-            Shape = shape,
-            Size = size,
-            Color = color,
-            Material = Enum.Material.Neon,
-            Transparency = transparency,
-            Anchored = true,
-            CanCollide = false,
-            CFrame = CFrame.new(position) * orientation,
-        })
-    end
+    local sphere = React.createElement("Part", {
+        key = "BlochSphere",
+        Shape = Enum.PartType.Ball,
+        Size = Vector3.new(SPHERE_RADIUS * 2, SPHERE_RADIUS * 2, SPHERE_RADIUS * 2),
+        Color = SPHERE_COLOR,
+        Material = SPHERE_MATERIAL,
+        Transparency = SPHERE_TRANSPARENCY,
+        Anchored = true,
+        CanCollide = false,
+        CFrame = CFrame.new(CENTER_POSITION),
+        TopSurface = Enum.SurfaceType.Smooth
+    })
+
+    local axisLength = SPHERE_RADIUS * 2.2
+    local axisSize = Vector3.new(AXIS_THICKNESS, axisLength, AXIS_THICKNESS)
+
+    local xAxis = React.createElement("Part", {
+        key = "XAxis",
+        Shape = Enum.PartType.Cylinder,
+        Size = axisSize,
+        Color = AXIS_COLOR_X,
+        Material = AXIS_MATERIAL,
+        Transparency = AXIS_TRANSPARENCY_X,
+        Anchored = true,
+        CanCollide = false,
+        CFrame = CFrame.new(CENTER_POSITION) * CFrame.Angles(0, 0, math.rad(90)),
+    })
+    local yAxis = React.createElement("Part", {
+        key = "YAxis",
+        Shape = Enum.PartType.Cylinder,
+        Size = axisSize,
+        Color = AXIS_COLOR_Y,
+        Material = AXIS_MATERIAL,
+        Transparency = AXIS_TRANSPARENCY_Y,
+        Anchored = true,
+        CanCollide = false,
+        CFrame = CFrame.new(CENTER_POSITION) * CFrame.Angles(0, 0, 0),
+    })
+    local zAxis = React.createElement("Part", {
+        key = "ZAxis",
+        Shape = Enum.PartType.Cylinder,
+        Size = axisSize,
+        Color = AXIS_COLOR_Z,
+        Material = AXIS_MATERIAL,
+        Transparency = AXIS_TRANSPARENCY_Z,
+        Anchored = true,
+        CanCollide = false,
+        CFrame = CFrame.new(CENTER_POSITION) * CFrame.Angles(math.rad(90), 0, 0),
+    })
+
 
     local function createLabel(name, text, position, textColor)
         return React.createElement("BillboardGui", {
             key = name .. "LabelGui",
             Size = UDim2.new(3, 0, 4, 0),
             StudsOffsetWorldSpace = position,
-            AlwaysOnTop = true,
+            --AlwaysOnTop = true,
             LightInfluence = 0,
         }, {
             TextLabel = React.createElement("TextLabel", {
@@ -65,30 +125,10 @@ function BlochSphereComponent:render()
         })
     end
 
-    local sphere = createPart(
-        "BlochSphere",
-        Enum.PartType.Ball,
-        Vector3.new(SPHERE_RADIUS * 2, SPHERE_RADIUS * 2, SPHERE_RADIUS * 2),
-        SPHERE_COLOR,
-        SPHERE_TRANSPARENCY,
-        CENTER_POSITION,
-        CFrame.new()
-    )
-
-    local axisLength = SPHERE_RADIUS * 2.2
-    local axisSize = Vector3.new(AXIS_THICKNESS, axisLength, AXIS_THICKNESS)
-
-    local xAxis = createPart("XAxis", Enum.PartType.Cylinder, axisSize, AXIS_COLOR_X, AXIS_TRANSPARENCY_X, CENTER_POSITION, CFrame.Angles(0, 0, math.rad(90)))
-    local yAxis = createPart("YAxis", Enum.PartType.Cylinder, axisSize, AXIS_COLOR_Y, AXIS_TRANSPARENCY_Y, CENTER_POSITION, CFrame.Angles(0, 0, 0))
-    local zAxis = createPart("ZAxis", Enum.PartType.Cylinder, axisSize, AXIS_COLOR_Z, AXIS_TRANSPARENCY_Z, CENTER_POSITION, CFrame.Angles(math.rad(90), 0, 0))
-
     local labelDist = SPHERE_RADIUS + LABEL_OFFSET
-    -- local ket="⟩"
     local sqrt2 = "√2"
-
     local function blockSphereLabels()
         local row1 = {"X+",   "X-",    "Y+",   "Y-",    "Z+",   "Z-"}
-        --local row2 = {"1\n1", "1\n-1", "1\ni", "1\n-i", "1\n0", "0\n1"}
         local row3 = {string.format("[[%s] \n [%s]]", sqrt2, sqrt2), 
                       string.format("[[ %s] \n [%s]]", sqrt2, "-" .. sqrt2), 
                       string.format("[[%s] \n [%s]]", sqrt2, "i"), 
@@ -123,9 +163,39 @@ function BlochSphereComponent:render()
     end
 
     local ringDiameter = SPHERE_RADIUS * 2
-    local xyRing = createPart("XY_Ring", Enum.PartType.Cylinder, Vector3.new(RING_THICKNESS, ringDiameter, ringDiameter), RING_COLOR_XY, RING_TRANSPARENCY_XY, CENTER_POSITION, CFrame.Angles(math.rad(90), 0, 0))
-    local xzRing = createPart("XZ_Ring", Enum.PartType.Cylinder, Vector3.new(RING_THICKNESS, ringDiameter, ringDiameter), RING_COLOR_XZ, RING_TRANSPARENCY_XZ, CENTER_POSITION, CFrame.Angles(0, 0, math.rad(90)))
-    local yzRing = createPart("YZ_Ring", Enum.PartType.Cylinder, Vector3.new(RING_THICKNESS, ringDiameter, ringDiameter), RING_COLOR_YZ, RING_TRANSPARENCY_YZ, CENTER_POSITION, CFrame.Angles(0, math.rad(90), 0))
+    local xyRing = React.createElement("Part", {
+        key = "XY_Ring",
+        Shape = Enum.PartType.Cylinder,
+        Size = Vector3.new(RING_THICKNESS, ringDiameter, ringDiameter),
+        Color = RING_COLOR_XY,
+        Material = RING_MATERIAL,
+        Transparency = RING_TRANSPARENCY_XY,
+        Anchored = true,
+        CanCollide = false,
+        CFrame = CFrame.new(CENTER_POSITION) * CFrame.Angles(math.rad(90), 0, 0),
+    })
+    local xzRing = React.createElement("Part", {
+        key = "XZ_Ring",
+        Shape = Enum.PartType.Cylinder,
+        Size = Vector3.new(RING_THICKNESS, ringDiameter, ringDiameter),
+        Color = RING_COLOR_XZ,
+        Material = RING_MATERIAL,
+        Transparency = RING_TRANSPARENCY_XZ,
+        Anchored = true,
+        CanCollide = true,
+        CFrame = CFrame.new(CENTER_POSITION) * CFrame.Angles(0, 0, math.rad(90)),
+    })
+    local yzRing = React.createElement("Part", {
+        key = "YZ_Ring",
+        Shape = Enum.PartType.Cylinder,
+        Size = Vector3.new(RING_THICKNESS, ringDiameter, ringDiameter),
+        Color = RING_COLOR_YZ,
+        Material = RING_MATERIAL,
+        Transparency = RING_TRANSPARENCY_YZ,
+        Anchored = true,
+        CanCollide = false,
+        CFrame = CFrame.new(CENTER_POSITION) * CFrame.Angles(0, math.rad(90), 0),
+    })
 
     return React.createElement("Model", {
         key = "BlochSphere1",

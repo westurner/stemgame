@@ -10,21 +10,30 @@ local WireframeCubeComponent = React.Component:extend("WireframeCubeComponent")
 function WireframeCubeComponent:init()
     print("DEBUG: WireframeCubeComponent:init() ... Starting")
     self.props = self.props or {}
-    self.props.Name = self.props.Name or "WireframeCube1"
-    self.props.blockCenter = self.props.centerPosition or Vector3.new(0, 20, 15)
-    self.props.blockSize = self.props.size or Vector3.new(12, 12, 12)
+    self.props.Name = self.props.Name or self.props.key or "WireframeCube1"
+    self.props.blockCenter = self.props.Position or Vector3.new(0, 20, 15)
+    self.props.blockSize = self.props.Size or Vector3.new(12, 12, 12)
     self.props.lineThickness = self.props.lineThickness or 0.2
     self.props.lineColor = self.props.lineColor or Color3.fromRGB(0, 255, 0)
+    self.props.blockColor = self.props.blockColor or Color3.fromRGB(220, 220, 220) -- Light grey/white
+    self.props.lineMaterial = self.props.lineMaterial or Enum.Material.Neon
+    self.props.Transparency = self.props.Transparency or 0.8
+    self.props.Material = self.props.Material or Enum.Material.Glass
+    self.props.Anchored = self.props.Anchored or true
+    self.props.CanCollide = self.props.CanCollide or false
+
     print("DEBUG: WireframeCubeComponent:init() ... Done")
 end
 
 function WireframeCubeComponent:render()
     print("DEBUG: WireframeCubeComponent:render() ... Starting")
 
-    local blockCenter = self.props.blockCenter
-    local blockSize = self.props.blockSize
-    local lineThickness = self.props.lineThickness
-    local lineColor = self.props.lineColor
+    local props = self.props
+
+    local blockCenter = props.blockCenter
+    local blockSize = props.blockSize
+    local lineThickness = props.lineThickness
+    local lineColor = props.lineColor
 
     local model = Instance.new("Model")
     --model.Name = self.props.Name
@@ -33,20 +42,21 @@ function WireframeCubeComponent:render()
     local block = Instance.new("Part")
     block.Name = "GlassBlock"
     block.Size = blockSize
-    block.Color = Color3.fromRGB(220, 220, 220) -- Light grey/white
-    block.Material = Enum.Material.Glass
-    block.Transparency = 0.8
-    block.Anchored = true
-    block.CanCollide = false
+    block.Color = props.blockColor
+    block.Material = props.Material
+    block.Transparency = props.Transparency
+    block.Anchored = props.Anchored
+    block.CanCollide = props.CanCollide
     block.TopSurface = Enum.SurfaceType.Smooth
     block.BottomSurface = Enum.SurfaceType.Smooth
+
     block.Parent = model
     block:PivotTo(CFrame.new(blockCenter))
 
     -- Calculate vertex positions in world space
     local blockCFrame = block:GetPivot()
     local halfSize = block.Size / 2
-    local vertices = {
+    local vertices = props.vertices or {
         blockCFrame * Vector3.new(halfSize.X, halfSize.Y, halfSize.Z),   -- +++ 1
         blockCFrame * Vector3.new(halfSize.X, halfSize.Y, -halfSize.Z),  -- ++- 2
         blockCFrame * Vector3.new(halfSize.X, -halfSize.Y, halfSize.Z),  -- +-+ 3
@@ -57,13 +67,13 @@ function WireframeCubeComponent:render()
         blockCFrame * Vector3.new(-halfSize.X, -halfSize.Y, -halfSize.Z) -- --- 8
     }
 
-    local edges = self.props.edges or {
+    local edges = props.edges or {
         {1, 2}, {3, 4}, {5, 6}, {7, 8}, -- Edges along Z
         {1, 3}, {2, 4}, {5, 7}, {6, 8}, -- Edges along Y
         {1, 5}, {2, 6}, {3, 7}, {4, 8}, -- Edges along X
     }
 
-    local edgesAdditional = self.props.edgesAdditional or {}
+    local edgesAdditional = props.edgesAdditional or {}
 
     -- Combine edges and edgesAdditional
     for _, edge in ipairs(edgesAdditional) do
@@ -82,11 +92,11 @@ function WireframeCubeComponent:render()
 
         local edgePart = Instance.new("Part")
         edgePart.Name = "Edge" .. i
-        edgePart.Material = Enum.Material.Neon
+        edgePart.Material = props.lineMaterial
         edgePart.Color = lineColor
         edgePart.Size = Vector3.new(lineThickness, lineThickness, distance)
-        edgePart.Anchored = true
-        edgePart.CanCollide = false
+        edgePart.Anchored = props.Anchored
+        edgePart.CanCollide = props.CanCollide
         edgePart.TopSurface = Enum.SurfaceType.Smooth
         edgePart.BottomSurface = Enum.SurfaceType.Smooth
         edgePart.Parent = model

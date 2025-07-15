@@ -7,7 +7,7 @@ local BlochSphereComponent = require(script.Parent.BlochSphereComponent)
 
 local TRAIL_LENGTH = 30 -- number of points in the trail
 local TRAIL_FADE_TIME = 1.2 -- seconds for a trail point to fade out
-local ARROW_LENGTH = 10
+local ARROW_LENGTH = 12
 local SPHERE_RADIUS = 10
 
 local function randomPointOnSphere(radius)
@@ -23,7 +23,12 @@ local SurfaceSphereComponent = React.Component:extend("SurfaceSphereComponent")
 
 function SurfaceSphereComponent:init()
     self.props = self.props or {}
+	self.props.Name = self.props.Name or 'SurfaceSphere1'
+	self.props.Position = self.props.Position or Vector3.new(0, 10, 0)
+    self.props.arrowLength = self.props.arrowLength or ARROW_LENGTH
     self.props.sphereRadius = self.props.sphereRadius or SPHERE_RADIUS
+    self.props.sphereColor = self.props.sphereColor or Color3.fromRGB(20, 20, 20)
+    self.props.sphereTransparency = self.props.sphereTransparency or 0.85
 	self:setState({
 		arrowPos = randomPointOnSphere(self.props.sphereRadius),
 		trail = {},
@@ -67,9 +72,9 @@ end
 function SurfaceSphereComponent:render()
 	local arrowPos = self.state.arrowPos
 	local trail = self.state.trail
-    local position = self.props.Position or Vector3.new(0, 10, 0)
-    local sphereRadius = self.props.sphereRadius or SPHERE_RADIUS
-    local arrowLength = self.props.arrowLength or ARROW_LENGTH
+    local position = self.props.Position
+    local sphereRadius = self.props.sphereRadius
+    local arrowLength = self.props.arrowLength
 
 	local children = {
 		BlochSphere = React.createElement(BlochSphereComponent, {
@@ -77,8 +82,9 @@ function SurfaceSphereComponent:render()
 			Size = Vector3.new(sphereRadius*2, sphereRadius*2, sphereRadius*2),
 			Material = Enum.Material.Neon,
             drawLabels = false,
-            sphereTransparency = 0.2,
-			sphereColor = Color3.fromRGB(20, 20, 20),
+            sphereTransparency = self.props.sphereTransparency,
+			sphereColor = self.props.sphereColor,
+			sphereRadius = self.props.sphereRadius,
             ringTransparency = 0,
 		}),
 		Arrow = React.createElement("Part", {
@@ -122,7 +128,7 @@ function SurfaceSphereComponent:render()
 	end
 
 	return React.createElement("Model",
-		{Name=self.props.name or 'SurfaceSphere1'},
+		{Name=self.props.Name},
 		children)
 end
 
