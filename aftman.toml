@@ -6,3 +6,5 @@
 wally = "UpliftGames/wally@0.3.2"
 rojo = "rojo-rbx/rojo@7.4.4"
 run-in-roblox = "rojo-rbx/run-in-roblox@0.3.0"
+lune = "lune-org/lune@0.9.3"
+#pesde = "pesde-pkg/pesde@0.7.0-rc.4+registry.0.2.3-rc.2"
