@@ -1,4 +1,5 @@
 {
     "makefile.configureOnOpen": false,
-    "luau-lsp.sourcemap.rojoPath": "/home/appuser/.cargo/bin/rojo"
+    "luau-lsp.sourcemap.rojoPath": "/home/appuser/.cargo/bin/rojo",
+    "stylua.targetReleaseVersion": "latest"
 }
