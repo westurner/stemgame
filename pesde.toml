@@ -1,0 +1,70 @@
+[package]
+name = "westurner/stemgame"
+version = "0.1.0"
+description = "A Roblox game written with react-lua for STEM Math and Physics"
+license = "MIT"
+authors = ["@westurner"]
+repository = "https://github.com/westurner/stemgame"
+
+[wally_indices]
+default = "https://github.com/UpliftGames/wally-index"
+#realm = "shared"
+#exclude = ["assets", "docs",  ".venv", ".vscode", "lite",  "DevPackages", "Packages"]
+#include = ["default.project.json", "LICENSE.txt", "Makefile", "aftman.toml", "jest.config.lua", "Dockerfile", "entrypoint.sh"]
+
+[place]
+shared = "game.ReplicatedStorage.Packages"
+server = "game.ServerScriptService.Packages"
+
+[dependencies]
+
+# https://github.com/jsdotlua/react-lua
+# https://github.com/jsdotlua/react-lua/blob/main/modules/react/package.json
+React = { wally = "jsdotlua/react", version = "17.2.1", index = "default" }
+ReactRoblox = { wally = "jsdotlua/react-roblox", version = "17.2.1", index = "default" }
+
+# https://github.com/chriscerie/react-error-boundary
+ReactErrorBoundary = { wally = "chriscerie/react-error-boundary", version = "0.2.0", index = "default" }
+
+# https://github.com/jsdotlua/otter
+ReactOtter = { wally = "jsdotlua/otter", version = "1.2.1", index = "default" }
+#ReactOtter = { wally = "Roblox/otter", version = "1.2.1", index = "default" }
+
+# https://github.com/jsdotlua/roact-navigation
+RoactNavigation = { wally = "jsdotlua/roact-navigation", version = "0.5.10", index = "default" }
+
+# https://github.com/Roblox/rodux
+#Rodux = { wally = "roblox/rodux", version = "3.0.0", index = "default" }
+#Rodux = { wally = "roblox/rodux", version = "4.0.0-rc.0", index = "default" }
+
+# https://github.com/Roblox/roact-rodux
+#RoactRodux = { wally = "roblox/roact-rodux", version = "0.5.1", index = "default" }
+
+# https://github.com/evaera/Cmdr
+Cmdr = { wally = "evaera/cmdr", version = "1.12.0", index = "default" }
+
+# https://github.com/sircfenner/studiocomponents
+StudioComponents = { wally = "sircfenner/studiocomponents", version = "1.2.0", index = "default" }
+
+
+[dev-dependencies]
+# https://github.com/jsdotlua/jest-lua
+Jest = { wally = "jsdotlua/jest", version = "3.10.0", index = "default" }
+JestGlobals = { wally = "jsdotlua/jest-globals", version = "3.10.0", index = "default" }
+
+# https://github.com/jsdotlua/react-lua/tree/main/modules/jest-react/
+# https://github.com/jsdotlua/react-lua/blob/main/modules/jest-react/package.json
+# JestReact = { wally = "jsdotlua/jest-react", version = "17.2.0", index = "default" }
+
+# https://github.com/jsdotlua/react-lua/tree/main/modules/react-debug-tools
+# https://github.com/jsdotlua/react-lua/blob/blob/modules/react-debug-tools/package.json
+ReactDebugTools = { wally = "jsdotlua/react-debug-tools", version = "17.2.1", index = "default" }
+
+# https://github.com/jsdotlua/react-lua/tree/main/modules/react-devtools-extensions
+# https://github.com/jsdotlua/react-lua/blob/main/modules/react-devtools-extensions/package.json
+ReactDevtools = { wally = "jsdotlua/react-devtools-extensions", version = "17.2.1", index = "default" }
+
+# https://github.com/westurner/lemur
+#Lemur = { wally = "westurner/lemur", version = "0.2.1", index = "default" }
+#Lemur = { repo = "westurner/lemur", rev = "v0.2.1"}
+Lemur = { workspace = "lemur", version = "^"}
