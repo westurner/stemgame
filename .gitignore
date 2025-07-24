@@ -29,3 +29,4 @@ roblox.yml
 .local_share_vinegar/
 
 __pycache__/
+.pytest_cache/
