@@ -106,6 +106,14 @@ RUN --mount=type=cache,id=cargocache,target=${apphome}/.cargo/registry,uid=1000,
     cd ~/.protonup && \
     ~/.cargo/bin/protonup-rs -q -f
 
+
+USER root
+RUN --mount=type=cache,id=yum-cache,target=/var/cache/yum,sharing=shared \
+    --mount=type=cache,id=dnf-cache,target=/var/cache/dnf,sharing=shared \
+    dnf install -y npm \
+        && \
+    dnf clean all
+
 ENTRYPOINT ["/entrypoint.sh"]
 USER root
 COPY .env.devcontainer.sh /.env
@@ -116,9 +124,8 @@ USER appuser:appuser
 #RUN \
 #    SETUP_WEBVIEW2=1 bash /.env 
 
-# TODO: this would be compatible with devcontainers 
-#  WORKDIR /workspace/stemgame
-#  WORKDIR /workspace  #?
+# Set WORKDIR to /workspaces which is compatible with devcontainer
+WORKDIR /workspaces
 
 # NOTE: Because of the required GUI login, `vinegar run` (which installs RobloxStudio.exe)
 # must be run in a postBuild action run within each container instance

@@ -154,7 +154,7 @@ PODMAN_OPTS=
 
 PODMAN_VOLUMES_dotenv=-v ${PWD}/.env.devcontainer.sh:/.env:rw 
 #PODMAN_VOLUMES_workspace=-v ${PWD}/..:/workspace 
-PODMAN_VOLUMES_workspace=-v ${PWD}/../..:/workspace 
+PODMAN_VOLUMES_workspace=-v ${PWD}/../..:/workspaces/stemgame
 PODMAN_VOLUMES_bashhistory=-v ${VIRTUAL_ENV}/.bash_history:/home/appuser/.bash_history
 #PODMAN_VOLUMES_vinegar_versions=-v ${PWD}/.local_share_vinegar_versions:/home/appuser/.local/share/vinegar/versions
 PODMAN_VOLUMES_vinegar=-v ${PWD}/.local_share_vinegar:/home/appuser/.local/share/vinegar
