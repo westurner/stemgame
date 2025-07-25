@@ -12,6 +12,7 @@ include = ["default.project.json", "LICENSE.txt", "Makefile", "aftman.toml", "je
 shared-packages = "game.ReplicatedStorage.Packages"
 
 [dependencies]
+
 # https://github.com/jsdotlua/react-lua
 # https://github.com/jsdotlua/react-lua/blob/main/modules/react/package.json
 React = "jsdotlua/react@17.2.1"
@@ -34,6 +35,11 @@ RoactNavigation = "jsdotlua/roact-navigation@0.5.10"
 # https://github.com/Roblox/roact-rodux
 #RoactRodux = "roblox/roact-rodux@0.5.1"
 
+# https://github.com/evaera/Cmdr
+Cmdr = "evaera/cmdr@1.12.0"
+
+# https://github.com/sircfenner/studiocomponents
+StudioComponents = "sircfenner/studiocomponents@1.2.0"
 
 
 [dev-dependencies]
@@ -52,3 +58,7 @@ ReactDebugTools = "jsdotlua/react-debug-tools@17.2.1"
 # https://github.com/jsdotlua/react-lua/tree/main/modules/react-devtools-extensions
 # https://github.com/jsdotlua/react-lua/blob/main/modules/react-devtools-extensions/package.json
 ReactDevtools = "jsdotlua/react-devtools-extensions@17.2.1"
+
+# https://github.com/westurner/lemur
+#Lemur = "westurner/lemur@0.2.1"
+Lemur = "git:https://github.com/westurner/lemur.git"
