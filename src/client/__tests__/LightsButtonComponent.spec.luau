@@ -1,0 +1,26 @@
+--!strict
+local LightsButtonComponent = require(script.Parent.Parent.LightsButtonComponent)
+local React = require(game:GetService("ReplicatedStorage").Packages.React)
+
+describe("LightsButtonComponent", function()
+    it("should exist", function()
+        expect(LightsButtonComponent).to.be.ok()
+    end)
+
+    it("should instantiate with default props and state", function()
+        local instance = LightsButtonComponent.new({dimensions = Vector3.new(1,1,1)})
+        expect(instance).to.be.ok()
+        expect(instance.props.cubeRef).to.be.nil()
+        expect(instance.props.dimensions).to.equal(Vector3.new(1,1,1))
+        expect(instance.state.dimensions).to.equal(Vector3.new(1,1,1))
+        expect(instance.state.current_block).to.equal(Vector3.new(1,1,1))
+    end)
+
+    it("should throw an error if dimensions prop is not provided", function()
+        local success, err = pcall(function()
+            LightsButtonComponent.new()
+        end)
+        expect(success).to.equal(false)
+        expect(err).to.contain("LightsButtonComponent: dimensions prop is required")
+    end)
+end)

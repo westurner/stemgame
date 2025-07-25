@@ -1,6 +1,7 @@
 -- BlochSphereComponent
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
+local SharedStateManager = require(game.StarterPlayer.StarterPlayerScripts.Client.SharedStateManager)
 
 local BlochSphereComponent = React.Component:extend("BlochSphereComponent")
 

@@ -4,6 +4,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
 local BlochSphereComponent = require(script.Parent.BlochSphereComponent)
+local SharedStateManager = require(game.StarterPlayer.StarterPlayerScripts.Client.SharedStateManager)
 
 local TRAIL_LENGTH = 30 -- number of points in the trail
 local TRAIL_FADE_TIME = 1.2 -- seconds for a trail point to fade out
@@ -25,14 +26,13 @@ function SurfaceSphereComponent:init()
     self.props = self.props or {}
 	self.props.Name = self.props.Name or 'SurfaceSphere1'
 	self.props.Position = self.props.Position or Vector3.new(0, 10, 0)
-    self.props.arrowLength = self.props.arrowLength or ARROW_LENGTH
-    self.props.sphereRadius = self.props.sphereRadius or SPHERE_RADIUS
+    self.props.arrowLength = self.props.arrowLength or 12
+    self.props.sphereRadius = self.props.sphereRadius or 10
     self.props.sphereColor = self.props.sphereColor or Color3.fromRGB(20, 20, 20)
     self.props.sphereTransparency = self.props.sphereTransparency or 0.85
-	self:setState({
-		arrowPos = randomPointOnSphere(self.props.sphereRadius),
-		trail = {},
-	})
+	self.state = {}
+    self.state.arrowPos = randomPointOnSphere(self.props.sphereRadius)
+    self.state.trail = {}
 	self._running = true
 end
 

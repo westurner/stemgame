@@ -1,0 +1,20 @@
+--!strict
+local SpawnLocationComponent = require(script.Parent.Parent.SpawnLocationComponent)
+local React = require(game:GetService("ReplicatedStorage").Packages.React)
+
+describe("SpawnLocationComponent", function()
+    it("should exist", function()
+        expect(SpawnLocationComponent).to.be.ok()
+    end)
+
+    it("should instantiate with default props", function()
+        local instance = SpawnLocationComponent.new()
+        expect(instance).to.be.ok()
+        expect(instance.props.Name).to.equal('SpawnLocation1')
+        expect(instance.props.Size).to.equal(Vector3.new(7,7,2))
+        expect(instance.props.Position).to.equal(Vector3.new(0,20,0))
+        expect(instance.props.Rotation).to.equal(Vector3.new(45, 0, 45))
+        expect(instance.props.Texture).to.equal("rbxasset://textures/SpawnLocation.png")
+        expect(instance.props.Material).to.equal(Enum.Material.Ground)
+    end)
+end)

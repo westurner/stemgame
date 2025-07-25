@@ -7,10 +7,8 @@ local AnswerPadComponent = React.Component:extend("AnswerPadComponent")
 
 function AnswerPadComponent:init()
     self.props = self.props or {}
-    self.state = {
-        isActive = false,
-    }
-end
+    self.state = {}
+    self.state.isActive = false
 
 function AnswerPadComponent:activate()
     self:setState({ isActive = true })

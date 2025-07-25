@@ -1,11 +1,16 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
+local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local SharedStateManager = require(game.StarterPlayer.StarterPlayerScripts.Client.SharedStateManager)
 
 local AirHockeyComponent = React.Component:extend("AirHockeyComponent")
 
 function AirHockeyComponent:init()
     self.props = self.props or {}
     -- Set all default props here
+    self.props.Name = self.props.Name or "Hockey01"
     self.props.Position = self.props.Position or Vector3.new(0, 0, 0)
     self.props.tableLength = self.props.tableLength or 60
     self.props.tableWidth = self.props.tableWidth or 120
@@ -25,28 +30,41 @@ function AirHockeyComponent:init()
     self.props.wallTransparency = self.props.wallTransparency or 0.5
     self.props.tableTransparency = self.props.tableTransparency or 0.4
     self.props.paddleTransparency = self.props.paddleTransparency or 0.3
-    self.props.paddleOffset = self.props.tableLength / 2 - 10
+    self.props.paddleOffset = self.props.paddleOffset or 10
     self.props.autoReturnDelay = self.props.autoReturnDelay or 3
     self.props.showGoals = self.props.showGoals ~= false
-    self.props.goalWidth = self.props.tableWidth / 3
-    self.props.goalDepth = self.props.wallThickness * 2.2
-    self.props.goalHeight = self.props.wallHeight * 1.1
+    self.props.goalWidth = self.props.goalWidth or (self.props.tableWidth / 3)
+    self.props.goalDepth = self.props.goalDepth or (self.props.wallThickness * 2.2)
+    self.props.goalHeight = self.props.goalHeight or (self.props.wallHeight * 1.1)
     self.props.goalColor1 = self.props.goalColor1 or Color3.fromRGB(0, 255, 204)
     self.props.goalColor2 = self.props.goalColor2 or Color3.fromRGB(247, 102, 40)
-    self.props.goalTransparency = self.props.showGoals and 0.5 or 1
-    self.state = {
-        userControlPaddle1 = false,
-        userControlPaddle2 = false,
-        score1 = 0,
-        score2 = 0,
-        paddle1Pos = nil,
-        paddle2Pos = nil,
-    }
+    self.props.goalTransparency = self.props.goalTransparency or (self.props.showGoals and 0.5 or 1)
+
+    self.state = {}
+    self.state.userControlPaddle1 = false
+    self.state.userControlPaddle2 = false
+    self.state.score1 = 0
+    self.state.score2 = 0
+    self.state.puckPosition = self.props.Position
+    self.state.paddle1Pos = self.props.Position
+    self.state.paddle2Pos = self.props.Position
+    self.state.puckRenderPos = self.props.Position
+    self.state.paddle1RenderPos = self.props.Position
+    self.state.paddle2RenderPos = self.props.Position
+    self.state.showButtons = false -- New state for UI button visibility
+
     self.refs = self.refs or {}
     self.refs.puckRef = self.refs.puckRef or React.createRef()
     self.refs.paddle1Ref = self.refs.paddle1Ref or React.createRef()
     self.refs.paddle2Ref = self.refs.paddle2Ref or React.createRef()
     self.scoreboardGui = nil
+
+    -- UI elements for PlayerGui
+    self.playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+    self.screenGui = Instance.new("ScreenGui")
+    self.screenGui.Name = "AirHockeyUI_" .. self.props.Name or "AirHockeyUI"
+    self.uiRoot = ReactRoblox.createRoot(self.screenGui)
+    self.screenGui.Parent = self.playerGui
 end
 
 function AirHockeyComponent:centerOfTable()
@@ -64,13 +82,6 @@ function AirHockeyComponent:resetPuck()
         -- Center of table, on top of the ice
         puck.Position = self:centerOfTable()
         puck.Velocity = Vector3.new(math.random(-10, 10), 0, math.random(-10, 10))
-        -- puck.CanCollide = false
-        -- task.delay(0.5, function()
-        --     if puck then
-        --         puck.CanCollide = true
-        --         puck.Velocity = Vector3.new(0,0,0)
-        --     end
-        -- end)
     end
 end
 
@@ -131,7 +142,7 @@ function AirHockeyComponent:handleBoundsAndBounce()
     local minXPad = position.X - tableLength / 2 + paddleRadius + wallThickness
     local maxXPad = position.X + tableLength / 2 - paddleRadius - wallThickness
     local minZPad = position.Z - tableWidth / 2 + paddleRadius + wallThickness
-    local maxZPad = position.Z + tableWidth / 2 - paddleRadius - wallThickness
+    local maxZPad = position.Z + tableWidth / 2 - paddleRadius + wallThickness
 
     -- Y bounds for puck and paddles
     local minY = position.Y + tableHeight
@@ -224,20 +235,110 @@ end
 
 function AirHockeyComponent:didMount()
     self:createScoreboard()
-    self.heartbeatConn = game:GetService("RunService").Heartbeat:Connect(function()
-        self:trackPaddles()
-        self:checkGoals()
-        self:handleBoundsAndBounce()
+    self:renderUI() -- Initial render of UI
+
+    -- Proximity check for UI buttons
+    self.proximityCheckConn = RunService.Heartbeat:Connect(function()
+        local localPlayer = Players.LocalPlayer
+        if localPlayer and localPlayer.Character and localPlayer.Character.PrimaryPart then
+            local playerPos = localPlayer.Character.PrimaryPart.Position
+            local tableCenter = self.props.Position
+            local distance = (playerPos - tableCenter).Magnitude
+            local newShowButtons = distance <= 102 -- Within 102 units
+
+            if newShowButtons ~= self.state.showButtons then
+                self:setState({ showButtons = newShowButtons })
+                self:renderUI() -- Re-render UI when visibility changes
+            end
+        end
     end)
+
+    if self.props.isSharedMode then
+        -- Listen for server state
+        self.stateChangedConn = SharedStateManager:subscribe("airHockey", function(hockeyState)
+            self:setState({
+                puckPosition = hockeyState.puckPosition,
+                paddle1Pos = hockeyState.paddle1Pos,
+                paddle2Pos = hockeyState.paddle2Pos,
+                score1 = hockeyState.score1,
+                score2 = hockeyState.score2,
+            })
+        end)
+
+        -- Start a client-side render loop for interpolation
+        self.renderLoopConn = RunService.RenderStepped:Connect(function(deltaTime)
+            -- Smoothly move the rendered puck towards the target position
+            self:setState({
+                puckRenderPos = self.state.puckRenderPos:Lerp(self.state.puckPosition, 0.2),
+                paddle1RenderPos = self.state.paddle1RenderPos:Lerp(self.state.paddle1Pos, 0.2),
+                paddle2RenderPos = self.state.paddle2RenderPos:Lerp(self.state.paddle2Pos, 0.2),
+            })
+        end)
+
+    else
+        -- Local mode: run the original physics simulation
+        self.heartbeatConn = RunService.Heartbeat:Connect(function()
+            self:trackPaddles()
+            self:checkGoals()
+            self:handleBoundsAndBounce()
+        end)
+    end
 end
 
 function AirHockeyComponent:willUnmount()
     if self.heartbeatConn then
         self.heartbeatConn:Disconnect()
     end
+    if self.stateChangedConn then
+        self.stateChangedConn:Disconnect()
+    end
+    if self.renderLoopConn then
+        self.renderLoopConn:Disconnect()
+    end
+    if self.proximityCheckConn then
+        self.proximityCheckConn:Disconnect()
+    end
     if self.scoreboardGui then
         self.scoreboardGui:Destroy()
     end
+    if self.uiRoot then
+        self.uiRoot:unmount()
+        self.screenGui:Destroy()
+    end
+end
+
+local TextButtonComponent = script.Parent.TextButtonComponent
+
+function AirHockeyComponent:renderUI()
+    local ui = React.createElement(React.Fragment, {}, {
+        userButton1 = React.createElement("TextButton", {
+            Text = self.state.userControlPaddle1 and "Drop Paddle 1" or "Control Paddle 1",
+            Size = UDim2.new(0, 200, 0, 50),
+            Position = UDim2.new(0.2, -100, 0.9, 0),
+            Visible = self.state.showButtons, -- Control visibility
+            [React.Event.Activated] = function()
+                if self.state.userControlPaddle1 then
+                    self:onDropPaddle(1)
+                else
+                    self:onUserControlButton(1)
+                end
+            end,
+        }),
+        userButton2 = React.createElement("TextButton", {
+            Text = self.state.userControlPaddle2 and "Drop Paddle 2" or "Control Paddle 2",
+            Size = UDim2.new(0, 200, 0, 50),
+            Position = UDim2.new(0.8, -100, 0.9, 0),
+            Visible = self.state.showButtons, -- Control visibility
+            [React.Event.Activated] = function()
+                if self.state.userControlPaddle2 then
+                    self:onDropPaddle(2)
+                else
+                    self:onUserControlButton(2)
+                end
+            end,
+        }),
+    })
+    self.uiRoot:render(ui)
 end
 
 function AirHockeyComponent:checkGoals()
@@ -295,64 +396,82 @@ function AirHockeyComponent:didUpdate()
     if self.scoreLabel then
         self.scoreLabel.Text = self:getScoreText()
     end
+    self:renderUI() -- Re-render UI on state changes (e.g., paddle control state)
 end
 
 function AirHockeyComponent:onUserControlButton(paddleNum)
-    if paddleNum == 1 then
-        self:setState({ userControlPaddle1 = true })
-    elseif paddleNum == 2 then
-        self:setState({ userControlPaddle2 = true })
+    if self.props.isSharedMode then
+        -- Tell the server we are controlling the paddle
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        ReplicatedStorage.PlayerAction:FireServer({
+            component = "airHockey",
+            action = "controlPaddle",
+            paddle = paddleNum,
+        })
+    else
+        -- Handle it locally as before
+        if paddleNum == 1 then
+            self:setState({ userControlPaddle1 = true })
+        elseif paddleNum == 2 then
+            self:setState({ userControlPaddle2 = true })
+        end
     end
 end
 
 function AirHockeyComponent:onDropPaddle(paddleNum)
-    if paddleNum == 1 then
-        self:setState({ userControlPaddle1 = false })
-        task.delay(self.autoReturnDelay, function()
-            if not self.state.userControlPaddle1 then
-                self:setState({ userControlPaddle1 = false })
-            end
-        end)
-    elseif paddleNum == 2 then
-        self:setState({ userControlPaddle2 = false })
-        task.delay(self.autoReturnDelay, function()
-            if not self.state.userControlPaddle2 then
-                self:setState({ userControlPaddle2 = false })
-            end
-        end)
+    if self.props.isSharedMode then
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        ReplicatedStorage.PlayerAction:FireServer({
+            component = "airHockey",
+            action = "releasePaddle",
+            paddle = paddleNum,
+        })
+    else
+        if paddleNum == 1 then
+            self:setState({ userControlPaddle1 = false })
+        elseif paddleNum == 2 then
+            self:setState({ userControlPaddle2 = false })
+        end
     end
 end
 
 function AirHockeyComponent:render()
     local position = self.props.Position
-    local tableLength = self.props.tableLength
-    local tableWidth = self.props.tableWidth
-    local tableHeight = self.props.tableHeight
-    local tableY = position.Y + tableHeight / 2
-    local wallHeight = self.props.wallHeight
-    local wallThickness = self.props.wallThickness
-    local puckPosition = self:centerOfTable()
-    local puckRadius = self.props.puckRadius
-    local puckHeight = self.props.puckHeight
-    local puckColor = self.props.puckColor
-    local wallColor = self.props.wallColor
-    local tableColor = self.props.tableColor
-    local paddleRadius = self.props.paddleRadius
-    local paddleHeight = self.props.paddleHeight
-    local paddleColor1 = self.props.paddleColor1
-    local paddleColor2 = self.props.paddleColor2
-    local puckTransparency = self.props.puckTransparency
-    local wallTransparency = self.props.wallTransparency
-    local tableTransparency = self.props.tableTransparency
-    local paddleTransparency = self.props.paddleTransparency
-    local paddleOffset = self.props.paddleOffset
-    local showGoals = self.props.showGoals
-    local goalWidth = self.props.goalWidth
-    local goalDepth = self.props.goalDepth
-    local goalHeight = self.props.goalHeight
     local goalColor1 = self.props.goalColor1
     local goalColor2 = self.props.goalColor2
+    local goalDepth = self.props.goalDepth
+    local goalHeight = self.props.goalHeight
     local goalTransparency = self.props.goalTransparency
+    local goalWidth = self.props.goalWidth
+    local paddleColor1 = self.props.paddleColor1
+    local paddleColor2 = self.props.paddleColor2
+    local paddleHeight = self.props.paddleHeight
+    local paddleOffset = self.props.paddleOffset
+    local paddleRadius = self.props.paddleRadius
+    local paddleTransparency = self.props.paddleTransparency
+    local puckColor = self.props.puckColor
+    local puckHeight = self.props.puckHeight or 1
+    local puckRadius = self.props.puckRadius
+    local puckTransparency = self.props.puckTransparency
+    local showGoals = self.props.showGoals
+    local tableColor = self.props.tableColor
+    local tableHeight = self.props.tableHeight or 1
+    local tableWidth = self.props.tableWidth
+    local tableLength = self.props.tableLength
+    local tableTransparency = self.props.tableTransparency
+    local tableY = self.props.tableY or position.Y + tableHeight / 2
+    local wallColor = self.props.wallColor
+    local wallHeight = self.props.wallHeight
+    local wallThickness = self.props.wallThickness
+    local wallTransparency = self.props.wallTransparency
+
+    if not self.props.tableHeight then
+        return {}
+    end
+
+    local puckPosition = self.props.isSharedMode and self.state.puckRenderPos or self:centerOfTable()
+    local paddle1Position = self.props.isSharedMode and self.state.paddle1RenderPos or position + Vector3.new(0, tableY + paddleHeight / 2 + 0.1, -paddleOffset)
+    local paddle2Position = self.props.isSharedMode and self.state.paddle2RenderPos or position + Vector3.new(0, tableY + paddleHeight / 2 + 0.1, paddleOffset)
 
     -- Goals (optionally visible)
     -- Table
@@ -424,7 +543,7 @@ function AirHockeyComponent:render()
             ref = self.refs.paddle1Ref,
             Shape = Enum.PartType.Cylinder,
             Size = Vector3.new(paddleHeight, paddleRadius * 2, paddleRadius*2),
-            Position = position + Vector3.new(0, tableY + paddleHeight / 2 + 0.1, -paddleOffset),
+            Position = paddle1Position,
             Anchored = false,
             Color = paddleColor1,
             Material = Enum.Material.Neon,
@@ -439,7 +558,7 @@ function AirHockeyComponent:render()
             ref = self.refs.paddle2Ref,
             Shape = Enum.PartType.Cylinder,
             Size = Vector3.new(paddleHeight, paddleRadius * 2, paddleRadius * 2),
-            Position = position + Vector3.new(0, tableY + paddleHeight / 2 + 0.1, paddleOffset),
+            Position = paddle2Position,
             Anchored = false,
             Color = paddleColor2,
             Material = Enum.Material.Neon,
@@ -480,7 +599,7 @@ function AirHockeyComponent:render()
         ref = self.refs.puckRef,
         Shape = Enum.PartType.Cylinder,
         Size = Vector3.new(puckHeight, puckRadius * 2, puckRadius * 2),
-        Position = puckPosition, --position + Vector3.new(tableLength/2, tableY + puckHeight / 2 + 0.1, tableWidth/2),
+        Position = puckPosition,
         Anchored = false,
         Color = puckColor,
         Material = Enum.Material.Neon,
@@ -493,43 +612,20 @@ function AirHockeyComponent:render()
         --CustomPhysicalProperties = PhysicalProperties.new(0.01, 0.3, 0.5),
     })
 
-    -- User control buttons for each paddle
-    local userButton1 = React.createElement("TextButton", {
-        Name = "UserControlButton1",
-        Text = self.state.userControlPaddle1 and "Drop Paddle 1" or "Control Paddle 1",
-        Size = UDim2.new(0, 200, 0, 50),
-        Position = UDim2.new(0.2, -100, 0.9, 0),
-        [React.Event.Activated] = function()
-            if self.state.userControlPaddle1 then
-                self:onDropPaddle(1)
-            else
-                self:onUserControlButton(1)
-            end
-        end,
+    return React.createElement("Folder", {
+        key = self.props.Name,
+    }, {
+        Table = tablePart,
+        Puck = puck,
+        Paddle1 = paddles[1],
+        Paddle2 = paddles[2],
+        WallLeft = walls[1],
+        WallRight = walls[2],
+        WallTop = walls[3],
+        WallBottom = walls[4],
+        Goal1 = goals[1],
+        Goal2 = goals[2],
     })
-    local userButton2 = React.createElement("TextButton", {
-        Name = "UserControlButton2",
-        Text = self.state.userControlPaddle2 and "Drop Paddle 2" or "Control Paddle 2",
-        Size = UDim2.new(0, 200, 0, 50),
-        Position = UDim2.new(0.8, -100, 0.9, 0),
-        [React.Event.Activated] = function()
-            if self.state.userControlPaddle2 then
-                self:onDropPaddle(2)
-            else
-                self:onUserControlButton(2)
-            end
-        end,
-    })
-
-    -- Combine all elements into a single array for Model children
-    local modelChildren = { tablePart, puck, userButton1, userButton2 }
-    for _, wall in ipairs(walls) do table.insert(modelChildren, wall) end
-    for _, paddle in ipairs(paddles) do table.insert(modelChildren, paddle) end
-    for _, goal in ipairs(goals) do table.insert(modelChildren, goal) end
-
-    return React.createElement("Model", {
-        Name = "AirHockeyModel",
-    }, modelChildren)
 end
 
 return AirHockeyComponent

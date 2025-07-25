@@ -22,10 +22,9 @@ function GlowingOrbComponent:init()
     -- self.state = self.state or {}
     -- self.state.isGlowing = self.state.isGlowing or false
     -- self.state.glowTween = nil
-    self:setState({
-        isGlowing = false,
-        glowTween = nil,
-    })
+    self.state = {}
+    self.state.isGlowing = false
+    self.state.glowTween = nil
 end
 
 function GlowingOrbComponent:didMount()

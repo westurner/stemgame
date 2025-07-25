@@ -19,7 +19,7 @@ end
 
 function TextButtonComponent:render()
     return React.createElement("TextButton", {
-        Text=self.props.Text,
+        Text=tostring(self.props.Text),
         TextSize=self.props.TextSize,
         Position=self.props.Position,
         Size=self.props.Size,

@@ -1,0 +1,21 @@
+--!strict
+local AxisComponent = require(script.Parent.Parent.AxisComponent)
+local React = require(game:GetService("ReplicatedStorage").Packages.React)
+
+describe("AxisComponent", function()
+    it("should exist", function()
+        expect(AxisComponent).to.be.ok()
+    end)
+
+    it("should instantiate with default props", function()
+        local instance = AxisComponent.new()
+        expect(instance).to.be.ok()
+        expect(instance.props.axis).to.equal("X")
+        expect(instance.props.axisLength).to.equal(2000)
+        expect(instance.props.axisThickness).to.equal(0.5)
+        expect(instance.props.origin).to.equal(Vector3.new(0, 15, 0))
+        expect(instance.props.colorX).to.equal(Color3.fromRGB(0, 0, 255))
+        expect(instance.props.colorY).to.equal(Color3.fromRGB(0, 255, 255))
+        expect(instance.props.colorZ).to.equal(Color3.fromRGB(255, 0, 0))
+    end)
+end)

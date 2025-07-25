@@ -18,9 +18,9 @@ function LightsButtonComponent:init()
 
 	self.prev = {} -- store previous attributes for each block by eventid
 
-	self:setState({
-		dimensions=self.props.dimensions,
-		current_block=Vector3.new(1,1,1)})
+	self.state = {}
+    self.state.dimensions=self.props.dimensions
+    self.state.current_block=Vector3.new(1,1,1)
 end
 
 function LightsButtonComponent:decorateBlock(block, eventid)

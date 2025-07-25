@@ -12,7 +12,9 @@ local TreeComponent = React.Component:extend("TreeComponent")
 local function createBranches(props, position, direction, depth)
     local elements = {}
     if depth == 0 then return elements end
+    if depth == nil then return {} end
 
+    local _direction = direction or Vector3.new(0, 1, 0)
     local branchLength = props.branchLength or 40
     local branchThickness = props.branchThickness or 8
     local color = props.branchColor or Color3.fromRGB(101, 67, 33)
@@ -23,7 +25,7 @@ local function createBranches(props, position, direction, depth)
     local up = Vector3.new(0, 1, 0)
 
     -- Compute end position for this branch
-    local safeDir = direction.Magnitude > 0 and direction.Unit or up
+    local safeDir = _direction.Magnitude > 0 and _direction.Unit or up
     local endPos = position + safeDir * branchLength
     local midPos = (position + endPos) / 2
     -- For blocks, Y axis is up, so rotate so Y points from start to end
@@ -36,21 +38,21 @@ local function createBranches(props, position, direction, depth)
         brightness = 0
     end
 
-    table.insert(elements, React.createElement("Part", {
+    elements["Tree"] = React.createElement("Part", {
         Size = Vector3.new(branchThickness, branchLength, branchThickness),
         CFrame = branchCFrame,
         Color = color,
         Material = material,
         Anchored = true,
         CanCollide = props.CanCollide or true,
-        Name = string.format("Branch_%d", depth)
+        Name = string.format("Branch_%s", depth)
     }, {
         spotlight=React.createElement("SpotLight", {
             Brightness=brightness,
             Color=Color3.fromRGB(255,255,255),
             Face=Enum.NormalId.Bottom,
         })
-    }))
+    })
 
     if depth > 1 then
         -- Split into n branches, evenly distributed around Y axis, all tilted upward
@@ -60,8 +62,8 @@ local function createBranches(props, position, direction, depth)
             local angleY = -splitAngle + (2 * splitAngle) * t
             local branchCFrameDir = baseCFrame * CFrame.Angles(-tiltAngle, angleY, 0)
             local branchDir = branchCFrameDir.LookVector
-            for _, branch in ipairs(createBranches(props, endPos, branchDir, depth - 1)) do
-                table.insert(elements, branch)
+            for j, branch in ipairs(createBranches(props, endPos, branchDir, depth - 1)) do
+                elements['Branch'..i .. '_' .. j] = branch
             end
         end
     end

@@ -25,6 +25,7 @@ local AappRootComponent = React.Component:extend("AappRootComponent")
 function AappRootComponent:init()
     print("DEBUG: AappRootComponent:init() starting...")
     self.props = self.props or {}
+    self.state = {}
     print("DEBUG: AappRootComponent:init() done.")
 end
 

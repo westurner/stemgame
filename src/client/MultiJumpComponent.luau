@@ -6,10 +6,9 @@ local MultiJumpComponent = React.Component:extend("MultiJumpComponent")
 
 function MultiJumpComponent:init()
     self.props = self.props or {}
-    self.state = {
-        isJumping = false,
-        jumpCount = 0,
-    }
+    self.state = {}
+    self.state.isJumping = false
+    self.state.jumpCount = 0
 end
 
 function MultiJumpComponent:render()

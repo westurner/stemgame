@@ -1,17 +1,16 @@
 -- BillboardAnswersComponent
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
+local SharedStateManager = require(game.StarterPlayer.StarterPlayerScripts.Client.SharedStateManager)
 
 local BillboardAnswersComponent = React.Component:extend("BillboardAnswersComponent")
 
 function BillboardAnswersComponent:init()
     self.props = self.props or {}
-    self:setState({
-        problem = nil,
-        isTouchingStartPad0 = false,
-        isTouchingAnswerPad = false,
-        lastAnswerPad = nil,
-    })
+    self.state = {}
+    self.state.problem = nil
+    self.state.selectedAnswer = nil
+    self.state.lastAnswerCorrect = nil
 end
 
 local function _schema()
@@ -22,6 +21,14 @@ local function _schema()
     }
     return _context
 end
+
+
+function BillboardAnswersComponent:willUnmount()
+    if self.unsubscribe then
+        self.unsubscribe()
+    end
+end
+
 
 local function test_schema()
     local problem0 = {
@@ -78,12 +85,32 @@ function BillboardAnswersComponent:render()
     local answerPads = {}
     local answerPadSize = self.props.answerPadSize or Vector3.new(5, 1, 5)
 
-    for i, answer in ipairs(problem.answers) do
+    for id, answerData in pairs(problem.answers) do
+        local answerColor = Color3.fromRGB(255, 255, 255) -- Default white
+        if selectedAnswer == id then
+            if lastAnswerCorrect == true then
+                answerColor = Color3.fromRGB(0, 255, 0) -- Green for correct
+            elseif lastAnswerCorrect == false then
+                answerColor = Color3.fromRGB(255, 0, 0) -- Red for incorrect
+            end
+        end
+
         table.insert(answerPads, React.createElement(require(script.Parent.AnswerPadComponent), {
             key = "AnswerPad" .. answer._id,
             size = answerPadSize,
             position = Vector3.new(i * 6 - 12, 0, 0), -- Spread out the answer pads horizontally
-            answer = answer._value,
+            answer = answerData.value,
+            color = answerColor,
+            [React.Event.Touched] = function(hit)
+                if self.props.isSharedMode and hit.Parent:FindFirstChild("Humanoid") then
+                    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+                    ReplicatedStorage.PlayerAction:FireServer({
+                        component = "billboardAnswers",
+                        action = "selectAnswer",
+                        answerID = id,
+                    })
+                end
+            end,
         }))
     end
 

@@ -1,0 +1,20 @@
+--!strict
+local SurfaceSphereComponent = require(script.Parent.Parent.SurfaceSphereComponent)
+local React = require(game:GetService("ReplicatedStorage").Packages.React)
+
+describe("SurfaceSphereComponent", function()
+    it("should exist", function()
+        expect(SurfaceSphereComponent).to.be.ok()
+    end)
+
+    it("should instantiate with default props", function()
+        local instance = SurfaceSphereComponent.new()
+        expect(instance).to.be.ok()
+        expect(instance.props.Name).to.equal('SurfaceSphere1')
+        expect(instance.props.Position).to.equal(Vector3.new(0, 10, 0))
+        expect(instance.props.arrowLength).to.equal(12)
+        expect(instance.props.sphereRadius).to.equal(10)
+        expect(instance.props.sphereColor).to.equal(Color3.fromRGB(20, 20, 20))
+        expect(instance.props.sphereTransparency).to.equal(0.85)
+    end)
+end)

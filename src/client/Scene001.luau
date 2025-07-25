@@ -13,8 +13,7 @@ if (debugMode) then
 end
 
 local React = require(ReplicatedStorage.Packages.React)
-
-
+local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
 
 --local AnswerPadComponent = require(script.Parent.AnswerPadComponent)
 local AreaVolumeCubeSceneComponent = require(script.Parent.AreaVolumeCube).AreaVolumeCubeSceneComponent
@@ -29,16 +28,11 @@ local SeesawComponent = require(script.Parent.SeesawComponent)
 --local SpawnLocationComponent = require(script.Parent.SpawnLocationComponent)
 local WireframeCubeComponent = require(script.Parent.WireframeCubeComponent)
 local TreeComponent = require(script.Parent.TreeComponent)
+local TextButtonComponent = require(script.Parent.TextButtonComponent)
 local DoublePendulumComponent = require(script.Parent.DoublePendulumComponent)
 local AirHockeyComponent = require(script.Parent.AirHockeyComponent)
 
 --local FallbackComponent = require(script.Parent.FallbackComponent)
-
-
-
-
-
-
 
 local Scene001 = React.Component:extend("Scene001")
 
@@ -65,11 +59,11 @@ Scene001.init_lighting_strobe = function(_props)
 
 	local fadeDuration = 2
 	local tweenInfo_fadeIn = TweenInfo.new(
-		fadeDuration, 
-		Enum.EasingStyle.Linear, 
-		Enum.EasingDirection.InOut, 
-		-1, 
-		true, 
+		fadeDuration,
+		Enum.EasingStyle.Linear,
+		Enum.EasingDirection.InOut,
+		-1,
+		true,
 		0
 	)
 	local tween1 = TweenService:Create(lighting, tweenInfo_fadeIn, { Ambient = targetColor })
@@ -108,6 +102,17 @@ end
 function Scene001:init()
     print("DEBUG: Scene001:init() starting...")
     self.props = self.props or {}
+        self.state = {}
+    self.state.isSharedMode = true
+
+    -- Create a ScreenGui for our UI elements
+    self.playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+    self.screenGui = Instance.new("ScreenGui")
+    self.screenGui.Name = "Scene001_UI"
+    self.uiRoot = ReactRoblox.createRoot(self.screenGui)
+    self.screenGui.Parent = self.playerGui
+
+    self:renderUI()
 
     self.init_lighting(self.props)
     --self.init_lighting_strobe(self.props)
@@ -115,6 +120,38 @@ function Scene001:init()
 	self.init_gravity(self.props)
 
     print("DEBUG: Scene001:init() done.")
+end
+
+function Scene001:didUpdate(prevProps, prevState)
+    if self.state.isSharedMode ~= prevState.isSharedMode then
+        self:renderUI()
+    end
+end
+
+function Scene001:willUnmount()
+    self.uiRoot:unmount()
+    self.screenGui:Destroy()
+end
+
+function Scene001:renderUI()
+    local ui = React.createElement(React.Fragment, {}, {
+        ModeToggleButton = React.createElement(TextButtonComponent, {
+            Text = self.state.isSharedMode and "Switch to Local Mode" or "Switch to Shared Mode",
+            Position = UDim2.new(0, 10, 0, 10),
+            Size = UDim2.new(0, 200, 0, 50),
+            [React.Event.Activated] = function()
+                local newMode = not self.state.isSharedMode
+                self:setState({ isSharedMode = newMode })
+                -- Fire event to server to notify of the change
+                local ReplicatedStorage = game:GetService("ReplicatedStorage")
+                ReplicatedStorage.PlayerAction:FireServer({
+                    component = "modeToggle",
+                    isSharedMode = newMode,
+                })
+            end,
+        }),
+    })
+    self.uiRoot:render(ui)
 end
 
 function Scene001:render()
@@ -133,14 +170,15 @@ function Scene001:render()
         BlochSphere1 =
             React.createElement(BlochSphereComponent, {
             Position=Vector3.new(0, 20, 0),
-            Size=Vector3.new(10, 10, 10),
+            sphereRadius = 10,
             Color=Color3.fromRGB(255, 0, 0),
             Material=Enum.Material.Neon,
         }),
         SurfaceSphere1 =
             React.createElement(SurfaceSphereComponent, {
                 Position = Vector3.new(30, 15+10, 0),
-                Scale = 10
+                sphereRadius = 10,
+                arrowLength = 12
             }),
         MultiJump1 =
             React.createElement(MultiJumpComponent, {
@@ -148,7 +186,7 @@ function Scene001:render()
         Seesaw1 =
             React.createElement(SeesawComponent, {
             Position = Vector3.new(0, 0, 0) }),
-    
+
         -- WireframeCube1 =
         --     React.createElement(WireframeCubeComponent, {
         --         --Position = Vector3.new(-40, 25, 40),
@@ -187,7 +225,7 @@ function Scene001:render()
         --         Color = Color3.fromRGB(0*0.3, 143*0.3, 200*0.3),
         --         Material = Enum.Material.Neon,
         --     }),
-        Tree1 = 
+        Tree1 =
             React.createElement(TreeComponent, {
                 Position = Vector3.new(250, 5, 250)
             }),
@@ -196,15 +234,18 @@ function Scene001:render()
             React.createElement(DoublePendulumComponent, {
                 Position = Vector3.new(-100, 32, 42)
             }),
-    
+
         AirHockey1 =
             React.createElement(AirHockeyComponent, {
-                Position = Vector3.new(-100, 10, -100)
+                Position = Vector3.new(-100, 10, -100),
+                isSharedMode = self.state.isSharedMode,
             }),
 
-        -- BillboardAnswers1 =
-        --     React.createElement(BillboardAnswersComponent, {
-        --     Position = Vector3.new(0, 0, 0) }),
+        --BillboardAnswers1 =
+        --    React.createElement(BillboardAnswersComponent, {
+        --    Position = Vector3.new(0, 0, 0),
+        --    isSharedMode = self.state.isSharedMode,
+        --}),
     })
     print("DEBUG: Scene001:render() done.")
     return sceneRoot

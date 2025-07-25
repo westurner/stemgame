@@ -1,4 +1,3 @@
-
 -- FallbackComponent
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local React = require(ReplicatedStorage.Packages.React)
@@ -20,9 +19,28 @@ return FallbackComponent
 --[[
 Next, in your app, wrap an ErrorBoundary where needed.
 
+
+
+
 local ReactErrorBoundary = require(ReplicatedStorage.Packages.ReactErrorBoundary)
 local FallbackComponent = require(ReplicatedStorage.Packages.Shared.FallbackComponent)
 --local FallbackComponent = require(script.Parent.FallbackComponent)
+
+
+-- Utility: createElement for function components
+function createElement(component, props, children)
+    -- In react-lua, function components are just called with props
+    -- This utility mimics React.createElement for FCs
+
+    return React.createElement(ReactErrorBoundary.ErrorBoundary, {
+        FallbackComponent = Fallback,
+    }, {
+        ComponentThatMightError = React.createElement(component),
+    })
+
+    return component(props or {}, children)
+end
+
 
 local App: React.FC<{}> = function(_props)
     return React.createElement(ReactErrorBoundary.ErrorBoundary, {
@@ -32,4 +50,6 @@ local App: React.FC<{}> = function(_props)
     })
 end
 
+
+--[[
 --]]

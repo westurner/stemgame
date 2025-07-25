@@ -55,6 +55,7 @@ end
 
 local React = require(ReplicatedStorage.Packages.React)
 local ReactRoblox = require(ReplicatedStorage.Packages.ReactRoblox)
+local SharedStateManager = require(game.StarterPlayer.StarterPlayerScripts.Client.SharedStateManager)
 --local e = React.createElement
 
 
@@ -255,9 +256,26 @@ end
 local AreaVolumeCubeSceneComponent = React.Component:extend("AreaVolumeCubeSceneComponent")
 function AreaVolumeCubeSceneComponent:init()
 	self.props = self.props or {}
-	self:setState({
-		dimensions=Vector3.new(3, 4, 10),
-		current_block=Vector3.new(1,1,1)})
+	self.state = {}
+	self.state.dimensions=Vector3.new(3, 4, 10)
+	self.state.current_block=Vector3.new(1,1,1)
+    self.state.highlightedBlocks = {}
+end
+
+function AreaVolumeCubeSceneComponent:didMount()
+    if self.props.isSharedMode then
+        self.unsubscribe = SharedStateManager:subscribe("areaVolumeCube", function(cubeState)
+            self:setState({
+                highlightedBlocks = cubeState.highlightedBlocks or {},
+            })
+        end)
+    end
+end
+
+function AreaVolumeCubeSceneComponent:willUnmount()
+    if self.unsubscribe then
+        self.unsubscribe()
+    end
 end
 
 function AreaVolumeCubeSceneComponent:render()
@@ -325,7 +343,8 @@ function AreaVolumeCubeSceneComponent:render()
 			blockMaterial = Enum.Material.Neon,
 			--labelColor=Color3.fromRGB(34, 34, 34),
 			--labelColor=Color3.fromRGB(200, 54, 34),
-			labelColor=Color3.fromRGB(0,0,0)
+			labelColor=Color3.fromRGB(0,0,0),
+            highlightedBlocks = self.state.highlightedBlocks,
 		}),
 
 		Ball1 = React.createElement(BallComponent, {Color=Color3.fromRGB(200, 0, 0), _ref=refs.ball1}),

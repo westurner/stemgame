@@ -1,0 +1,21 @@
+--!strict
+local TextButtonComponent = require(script.Parent.Parent.TextButtonComponent)
+local React = require(game:GetService("ReplicatedStorage").Packages.React)
+
+describe("TextButtonComponent", function()
+    it("should exist", function()
+        expect(TextButtonComponent).to.be.ok()
+    end)
+
+    it("should instantiate with default props", function()
+        local instance = TextButtonComponent.new()
+        expect(instance).to.be.ok()
+        expect(instance.props.Size).to.equal(Vector3.new(7,7,7))
+        expect(instance.props.Position).to.equal(Vector3.new(0,20,0))
+        expect(instance.props.TextSize).to.equal(32)
+        expect(instance.props.Text).to.equal("Click Me")
+        expect(instance.props.BorderSizePixel).to.equal(4)
+        expect(instance.props.BackgroundTransparency).to.equal(0.5)
+        expect(instance.props.Visisble).to.equal(true)
+    end)
+end)

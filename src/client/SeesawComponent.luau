@@ -6,6 +6,7 @@ local SeesawComponent = React.Component:extend("SeesawComponent")
 
 function SeesawComponent:init()
     self.props = self.props or {}
+    self.state = {}
 end
 
 function SeesawComponent:render()
